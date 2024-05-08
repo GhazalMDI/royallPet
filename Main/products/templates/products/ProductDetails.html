@@ -1,0 +1,1359 @@
+{% extends '_base.html' %}
+{% load product_filterTag %}
+
+{% load static %}
+{% load humanize %}
+{% load jformat %}
+{% block title %}جزئیات محصول{% endblock %}
+{% block css %}
+    <link href="{% static 'products/style.css' %}">
+    <style>
+        button.selected {
+            border: 2px solid red;
+        }
+
+        .pd-wrap {
+            padding: 40px 0;
+            font-family: "Poppins", sans-serif;
+        }
+
+        .heading-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .sub-heading {
+            font-family: "Poppins", sans-serif;
+            font-size: 12px;
+            display: block;
+            font-weight: 600;
+            color: #2e9ca1;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .heading-section h2 {
+            font-size: 32px;
+            font-weight: 500;
+            padding-top: 10px;
+            padding-bottom: 15px;
+            font-family: "Poppins", sans-serif;
+        }
+
+        .user-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            position: relative;
+            min-width: 80px;
+            background-size: 100%;
+        }
+
+        .carousel-testimonial .item {
+            padding: 30px 10px;
+        }
+
+        .quote {
+            position: absolute;
+            top: -23px;
+            color: #2e9da1;
+            font-size: 27px;
+        }
+
+        .name {
+            margin-bottom: 0;
+            line-height: 14px;
+            font-size: 17px;
+            font-weight: 500;
+        }
+
+        .position {
+            color: #adadad;
+            font-size: 14px;
+        }
+
+        .owl-nav button {
+            position: absolute;
+            top: 50%;
+            transform: translate(0, -50%);
+            outline: none;
+            height: 25px;
+        }
+
+        .owl-nav button svg {
+            width: 25px;
+            height: 25px;
+        }
+
+        .owl-nav button.owl-prev {
+            left: 25px;
+        }
+
+        .owl-nav button.owl-next {
+            right: 25px;
+        }
+
+        .owl-nav button span {
+            font-size: 45px;
+        }
+
+        .product-thumb .item img {
+            height: 100px;
+        }
+
+        .product-name {
+            font-size: 22px;
+            font-weight: 500;
+            line-height: 22px;
+            margin-bottom: 4px;
+        }
+
+        .product-price-discount {
+            font-size: 22px;
+            font-weight: 400;
+            padding: 10px 0;
+            clear: both;
+        }
+
+        .product-price-discount span.line-through {
+            text-decoration: line-through;
+            margin-left: 10px;
+            font-size: 14px;
+            vertical-align: middle;
+            color: #a5a5a5;
+        }
+
+        .display-flex {
+            display: flex;
+        }
+
+        .align-center {
+            align-items: center;
+        }
+
+        .product-info {
+            width: 100%;
+        }
+
+        .reviews-counter {
+            font-size: 13px;
+        }
+
+        .reviews-counter span {
+            vertical-align: -2px;
+        }
+
+        .rate {
+            float: left;
+            padding: 0 10px 0 0;
+        }
+
+        .rate:not(:checked) > input {
+            position: absolute;
+            top: -9999px;
+        }
+
+        .rate:not(:checked) > label {
+            float: right;
+            width: 15px;
+            overflow: hidden;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 21px;
+            color: #ccc;
+            margin-bottom: 0;
+            line-height: 21px;
+        }
+
+        .rate:not(:checked) > label:before {
+            content: "\2605";
+        }
+
+        .rate > input:checked ~ label {
+            color: #ffc700;
+        }
+
+        .rate:not(:checked) > label:hover,
+        .rate:not(:checked) > label:hover ~ label {
+            color: #deb217;
+        }
+
+        .rate > input:checked + label:hover,
+        .rate > input:checked + label:hover ~ label,
+        .rate > input:checked ~ label:hover,
+        .rate > input:checked ~ label:hover ~ label,
+        .rate > label:hover ~ input:checked ~ label {
+            color: #c59b08;
+        }
+
+        .product-dtl p {
+            font-size: 14px;
+            line-height: 24px;
+            color: #111111;
+        }
+
+        .product-dtl .form-control {
+            font-size: 15px;
+        }
+
+        .product-dtl label {
+            line-height: 16px;
+            font-size: 15px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .product-count {
+            margin-top: 15px;
+        }
+
+        .product-count .qtyminus,
+        .product-count .qtyplus {
+            width: 34px;
+            height: 34px;
+            background: #212529;
+            text-align: center;
+            font-size: 19px;
+            line-height: 36px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .product-count .qtyminus {
+            border-radius: 0 3px 3px 0;
+        }
+
+        .product-count .qtyplus {
+            border-radius: 3px 0 0 3px;
+        }
+
+        .product-count .qty {
+            width: 60px;
+            height: 34px;
+            text-align: center;
+        }
+
+        .round-black-btn {
+            border-radius: 4px;
+            background: #212529;
+            color: #fff;
+            padding: 7px 45px;
+            display: inline-block;
+        {#margin-top: 20px;#} border: solid 2px #212529;
+            transition: all 0.5s ease-in-out 0s;
+        }
+
+        .round-black-btn:hover,
+        .round-black-btn:focus {
+            background: transparent;
+            color: #212529;
+            text-decoration: none;
+        }
+
+        .product-info-tabs {
+            margin-top: 25px;
+        }
+
+        .product-info-tabs .nav-tabs {
+            border-bottom: 2px solid #d8d8d8;
+        }
+
+        .product-info-tabs .nav-tabs .nav-item {
+            margin-bottom: 0;
+        }
+
+        .product-info-tabs .nav-tabs .nav-link {
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: #323232;
+        }
+
+        .product-info-tabs .nav-tabs .nav-item .nav-link:hover {
+            border: none;
+        }
+
+        .product-info-tabs .nav-tabs .nav-item.show .nav-link,
+        .product-info-tabs .nav-tabs .nav-link.active,
+        .product-info-tabs .nav-tabs .nav-link.active:hover {
+            border: none;
+            border-bottom: 2px solid #d8d8d8;
+            font-weight: bold;
+        }
+
+        .product-info-tabs .tab-content .tab-pane {
+            padding: 30px 20px;
+            font-size: 15px;
+            line-height: 24px;
+            color: rgba(0, 0, 0, 0.94);
+        }
+
+        .review-form .form-group {
+            clear: both;
+        }
+
+        .mb-20 {
+            margin-bottom: 20px;
+        }
+
+        .review-form .rate {
+            float: none;
+            display: inline-block;
+        }
+
+        .review-heading {
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 24px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            color: #000;
+        }
+
+        .review-form .form-control {
+            font-size: 14px;
+        }
+
+        .review-form input.form-control {
+            height: 40px;
+        }
+
+        .review-form textarea.form-control {
+            resize: none;
+        }
+
+        .review-form .round-black-btn {
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+
+        /*-- VARIABLES CSS--*/
+        /*Colores*/
+        :root {
+            --first-color: #ffffff;
+            --second-color: #ffffff;
+            --third-color: #FFE8DF;
+            --accent-color: #FF5151;
+            --dark-color: #161616;
+        }
+
+        /*Tipografia responsive*/
+        :root {
+            --body-font: 'Open Sans';
+            --h1-font-size: 1.5rem;
+            --h3-font-size: 1rem;
+            --normal-font-size: 0.938rem;
+            --smaller-font-size: 0.75rem;
+        }
+
+        @media screen and (min-width: 768px) {
+            :root {
+                --h1-font-size: 2rem;
+                --normal-font-size: 1rem;
+                --smaller-font-size: 0.813rem;
+            }
+        }
+
+        /*-- BASE --*/
+        *, ::after, ::before {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 2rem 0 0 0;
+            background-color: #fff;
+            color: var(--dark-color);
+            font-family: var(--body-font);
+        }
+
+        h1 {
+            font-size: var(--h1-font-size);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /*-- LAYAOUT --*/
+        .main {
+            padding: 2rem 0;
+        }
+
+        .bd-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            max-width: 1200px;
+            margin-left: 2.5rem;
+            margin-right: 2.5rem;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        /*-- PAGES --*/
+        .title-shop {
+            position: relative;
+            margin: 0 2.5rem;
+        }
+
+        .title-shop::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 72px;
+            height: 2px;
+            background-color: var(--dark-color);
+            margin-left: .25rem;
+        }
+
+        /*-- COMPONENT --*/
+        .card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        article:nth-child(1) {
+            background-color: var(--first-color);
+        }
+
+        article:nth-child(2) {
+            background-color: var(--second-color);
+        }
+
+        article:nth-child(3) {
+            background-color: var(--third-color);
+        }
+
+        article:nth-child(4) {
+            background-color: var(--second-color);
+        }
+
+        .card__img {
+            width: 180px;
+            height: auto;
+            padding: 3rem 0;
+            transition: .5s;
+        }
+
+        .card__name {
+            position: absolute;
+            left: -25%;
+            top: 0;
+            width: 3.5rem;
+            height: 100%;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            text-align: center;
+            background-color: var(--dark-color);
+            color: #fff;
+            font-weight: bold;
+            transition: .5s;
+        }
+
+        .card__icon {
+            font-size: 1.5rem;
+            color: var(--dark-color);
+        }
+
+        .card__icon:hover {
+            color: var(--accent-color);
+        }
+
+        .card__precis {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            transition: .5s;
+        }
+
+        .card__preci {
+            display: block;
+            text-align: center;
+        }
+
+        .card__preci--before {
+            font-size: var(--smaller-font-size);
+            color: var(--accent-color);
+            margin-bottom: .25rem;
+        }
+
+        .card__preci--now {
+            font-size: var(--h3-font-size);
+            font-weight: bold;
+        }
+
+        /*Move left*/
+        .card:hover {
+            box-shadow: 0 .5rem 1rem #D1D9E6;
+        }
+
+        .card:hover .card__name {
+            left: 0;
+        }
+
+        .card:hover .card__img {
+            transform: rotate(30deg);
+            margin-left: 3.5rem;
+        }
+
+        .card:hover .card__precis {
+            margin-left: 3.5rem;
+            padding: 0 1.5rem;
+        }
+
+        /*-- FOOTER --*/
+
+        footer {
+            text-align: center;
+        }
+
+        /*-- MEDIA QUERIES --*/
+        @media screen and (min-width: 1200px) {
+            body {
+                margin: 0;
+            }
+
+            .title-shop {
+                margin: 0 5rem;
+            }
+
+            .bd-grid {
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+
+
+        button {
+            -moz-appearance: none;
+            -webkit-appearance: none;
+            appearance: none;
+            font-size: 14px;
+            padding: 4px 8px;
+            color: rgba(0, 0, 0, 0.85);
+            background-color: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        button:hover,
+        button:focus,
+        button:active {
+            cursor: pointer;
+            background-color: #ecf0f1;
+        }
+
+        .comment-thread {
+            width: 100%;
+            max-width: 100%;
+            /* margin: auto; */
+            /* padding: 0 30px; */
+            background-color: #fff;
+            border: 1px solid transparent;
+        }
+
+        .m-0 {
+            margin: 0;
+        }
+
+        .sr-only {
+            position: absolute;
+            left: -10000px;
+            top: auto;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+
+        /* Comment */
+
+        .comment {
+            position: relative;
+            margin: 20px auto;
+        }
+
+        .comment-heading, .comment-heading-1 {
+            display: flex;
+            align-items: center;
+            height: 50px;
+            font-size: 14px;
+        }
+
+        .comment-info {
+            color: rgba(0, 0, 0, 0.5);
+            margin-left: 10px;
+        }
+
+        .comment-author {
+            color: rgba(0, 0, 0, 0.85);
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .comment-author:hover {
+            text-decoration: underline;
+        }
+
+        .replies {
+            margin-left: 20px;
+        }
+
+        /* Adjustments for the comment border links */
+
+        .comment-border-link {
+            display: block;
+            position: absolute;
+            top: 50px;
+            left: 0;
+            width: 12px;
+            height: calc(100% - 50px);
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            background-color: rgba(0, 0, 0, 0.1);
+            background-clip: padding-box;
+        }
+
+        .comment-border-link:hover {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .comment-body {
+            padding: 0 20px;
+            padding-left: 28px;
+        }
+
+        .replies {
+            margin-left: 28px;
+        }
+
+        /* Adjustments for toggleable comments */
+
+        details.comment summary {
+            position: relative;
+            list-style: none;
+            cursor: pointer;
+        }
+
+        details.comment summary::-webkit-details-marker {
+            display: none;
+        }
+
+        details.comment:not([open]) .comment-heading {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+        }
+
+        .comment-heading::after {
+            display: inline-block;
+            position: absolute;
+            left: 5px;
+            align-self: center;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.55);
+        }
+
+        details.comment[open] .comment-heading::after {
+            content: "پنهان شود";
+        }
+
+        details.comment:not([open]) .comment-heading::after {
+            content: "پنهان شود";
+        }
+
+        /* Adjustment for Internet Explorer */
+
+        @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+            /* Resets cursor, and removes prompt text on Internet Explorer */
+            .comment-heading {
+                cursor: default;
+            }
+
+            details.comment[open] .comment-heading::after,
+            details.comment:not([open]) .comment-heading::after {
+                content: " ";
+            }
+        }
+
+        /* Styling the reply to comment form */
+
+        .reply-form textarea {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            font-size: 16px;
+            width: 100%;
+            max-width: 100%;
+            margin-top: 15px;
+            margin-bottom: 5px;
+        }
+
+        .d-none {
+            display: none;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="d-flex col-md-2" style="">
+                {% if product.status != 'colorSize' %}
+                    <i id="like_product" onclick="AddLike('{{ product.slug }}','{% url 'Products:Favourite' %}')"
+                       class="fa {% if product|check_like:request.user == 'fa-solid' %}fa-solid {% else %}fa-regular{% endif %} fa-heart fs-2 "
+                       style="cursor: pointer;"></i>
+                {% else %}
+
+                    <i id="like_var_product"
+                       onclick="AddVarLike('{{ selected_size.id }}','{% url 'Products:VarProductFavourite' %}')"
+                       class="fa {% if product|check_like:request.user == 'fa-solid' %}fa-solid {% else %}fa-regular{% endif %} fa-heart fs-2 "
+                       style="cursor: pointer;"></i>
+                {% endif %}
+
+                <a href="{% url 'Products:CompareAddPro'  product.slug product.category2.id %}"><i
+                        class="fa-solid fa-code-compare fs-2" style="cursor: pointer"></i></a>
+            </div>
+            <div class="col-md-5">
+                <div class="col-3 d-flex align-items-center justify-content-center flex-column  rounded">
+                    <img src='{{ product.image.url }}' alt="" width="280rem" height="280rem" class="main m-3">
+                    <section class="">
+                        <div class=" d-flex justify-content-center gap-2 ">
+                            {% for image in product.extra_image_product.all %}
+                                <img src="{{ image.image.url }}" width="100rem" class="border indicator">
+                            {% endfor %}
+                        </div>
+                    </section>
+                </div>
+
+            </div>
+            <div class="col-md-5">
+                <div class="product-dtl">
+                    <div class="product-info">
+                        <div class="product-name">{{ product.name }}</div>
+                        {% if product.status == 'colorSize' %}
+                            <div class="product-price-discount">
+                                {#                                {% if selected_size.discount %}#}
+                                {#                                <span class="line-through">{{ selected_size.after_discount | intcomma }} تومان</span>{% endif %}#}
+                                <span class="">{{ selected_size.price |intcomma }} تومان </span>
+                            </div>
+                            </div>
+                        {% else %}
+                            <div class="product-price-discount">{% if product.discount %}
+                                <span class="line-through">{{ product.after_discount | intcomma }} تومان</span>{% endif %}
+                                <span class="">{{ product.price |intcomma }} تومان </span>
+                            </div>
+                        {% endif %}
+                    <p>{{ product.desc | safe }}</p>
+                    <div style="width: 30rem" class="row d-flex align-items-center">
+                        <div class="col-md-6">
+                            <div class="mx-5">
+                                {% if  product.status == 'colorSize' %}
+                                    <form style="width: 15rem" method="get" name="" novalidate action=""
+                                          class="d-flex align-items-center flex-row">
+                                        <select onchange="this.form.submit()" name="Selected_Size" class="form-control">
+                                            {% for s in product.var_product.all %}
+                                                <option {% if selected_size.id == s.id %}selected{% endif %}
+                                                        value="{{ s.id }}">{{ s.size.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </form>
+                                {% endif %}
+                            </div>
+                            <div class="product-count">
+                                {% if product.status == 'colorSize' %}
+                                    <form method="get" novalidate action="" class="" style="width: 80rem;display: flex;">
+                                        {#                                        {% csrf_token %}#}
+                                        <div class="display-flex align-items-center" style="width: 15rem">
+                                            <div class="qtyminus" style="height: 2.5rem">-</div>
+                                            <input type="text" name="var-quantity" id="var-quantity" value="1" class="qty"
+                                                   style="border: 1px solid;height: 2.5rem">
+                                            <div class="qtyplus" style="height: 2.5rem">+</div>
+                                        </div>
+                                        <button  style="width: 15rem" onclick="addToVarCartFunc('{{ selected_size.id }}','{% url 'cart:VariantCartAdd'   %}')"
+                                                type="submit" class="btn-dark py-3">
+                                            اضافه به سبد خرید
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <form id="add-to-cart-form" novalidate style="width: 80rem;display: flex;"
+                                          class="">
+                                        {% csrf_token %}
+                                        <div class="display-flex align-items-center " style="width: 15rem">
+                                            <div class="qtyminus" style="height: 2.5rem">-</div>
+                                            <input id="quantity"  type="text" name="quantity" value="1" class="qty"
+                                                   style="border: 1px solid;height: 2.5rem">
+                                            <div class="qtyplus" style="height: 2.5rem">+</div>
+                                        </div>
+                                        <button type="button" style="width: 15rem" class="btn-dark py-3"
+                                                onclick="addToCartFunc('{{ product.slug }}', '{% url 'cart:CartAdd' %}')">
+                                            اضافه به سبد خرید
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="ui top attached tabular menu">
+                <a class="item active" data-tab="first">مشخصات</a>
+                <a class="item" data-tab="second"> ({{ comment_Len }}) نظرات </a>
+            </div>
+            <div class="ui bottom attached tab segment active" data-tab="first" style="max-height: 50vh">
+                {{ product.desc|safe }}
+            </div>
+            <div class="ui bottom attached tab segment" data-tab="second" style="direction: rtl">
+                <form method="post" class="col-8 d-flex align-items-center justify-content-end flex-column gap-3"
+                      novalidate
+                      action="">
+                    {% csrf_token %}
+                    {#                {{ form_class_comment }}#}
+                    <textarea style="font-family: Vazir" cols="70" rows="6" name="body" class="form-control" id="text"
+                              placeholder="متن"></textarea>
+                    <button type="submit" class="round-black-btn">ثبت نظر</button>
+                </form>
+
+                <div class="d-flex flex-row align-items-start justify-content-start gap-3 "
+                     style="direction: rtl;color: black">
+
+                    {% for comment in comments %}
+                        <div class="d-flex flex-column align-items-start justify-content-start gap-3 "
+                             style="width: 100%">
+                            <div class="comment-thread">
+                                <!-- Comment 1 start -->
+                                <details open class="comment" id="comment-1">
+                                    {#                                <a href="#comment-1" class="comment-border-link">#}
+                                    {#                                    <span class="sr-only"></span>#}
+                                    {#                                </a>#}
+                                    <summary>
+                                        <div class="comment-heading-1">
+                                            <div class="comment-info">
+                                                <a href="#" class="comment-author">{{ comment.user.full_name }}</a>
+                                                <p class="m-0">
+                                                    {{ comment.created | jformat:'%Y/%m/%d' }}                                            </p>
+                                            </div>
+                                        </div>
+                                    </summary>
+
+                                    <div class="comment-body flex-column d-flex align-items-start justify-content-start">
+                                        <p>
+                                            {{ comment.body | safe }}
+                                        </p>
+                                        <button type="button" data-toggle="reply-form"
+                                                data-target="comment-{{ comment.id }}-reply-form">
+                                            نقل قول
+                                        </button>
+                                        <!-- Reply form start -->
+                                        <form method="post" action="?cm_id={{ comment.id }}" novalidate
+                                              class="reply-form d-none"
+                                              id="comment-{{ comment.id }}-reply-form">
+                                            {% csrf_token %}
+                                            <textarea name="body" class="py-3 px-2 form-control"
+                                                      style="font-family: vazir"
+                                                      placeholder="نظر خود را درباره ی این کامنت به اشتراک بگذارید"
+                                                      cols="70" rows="6"></textarea>
+                                            <button type="submit">ثبت نظر
+                                            </button>
+                                        </form>
+                                        {##}
+                                        {#                                        <button type="button">#}
+                                        {#                                            انصراف#}
+                                        {#                                        </button>#}
+                                        <!-- Reply form end -->
+                                    </div>
+                                    <div class="">
+                                        {% for rep in comment|replay %}
+                                            <div class="replies ms-5">
+                                                <!-- Comment 2 start -->
+                                                <details open class="comment" id="comment-2">
+                                                    <a href="#comment-2" class="comment-border-link">
+                                                        <span class="sr-only"></span>
+                                                    </a>
+                                                    <summary>
+                                                        <div class="comment-heading">
+                                                            <div class="comment-info">
+                                                                <a href="#"
+                                                                   class="comment-author">{{ rep.user.full_name }}</a>
+                                                                <p class="m-0">
+                                                                    {{ rep.created | jformat:'%Y/%m/%d' }}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </summary>
+
+                                                    <div class="comment-body  flex-column d-flex align-items-start justify-content-start">
+                                                        <p>
+                                                            {{ rep.body | safe }}
+                                                        </p>
+                                                    </div>
+                                                </details>
+
+                                            </div>
+                                            </details>
+                                        {% endfor %}
+                            </div>
+                        </div>
+                        </div>
+                    {% endfor %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="">
+                <p class="fw-bold">محصولات مرتبط </p>
+                <div class="owl-carousel owl-theme">
+                    {% for i in product3 %}
+                        {% if i.id != product.id %}
+                            <a href="{% url 'Products:ProductDetails' i.id i.slug %}">
+                                <div class="item mb-5">
+                                    <article class="card" style="height: 27rem">
+                                        <div class="card__img">
+                                            <img src="{{ i.image.url }}" alt="">
+                                        </div>
+                                        <div class="card__name">
+                                            <p>{{ i.name }}</p>
+                                        </div>
+                                        <div class="card__precis">
+                                            <div>
+                                                {% if i.discount %}
+                                                    <span class="card__preci card__preci--before">{{ i.after_discount | intcomma }} تومان </span>
+                                                {% endif %}
+                                                <span class="card__preci card__preci--now">{{ i.price | intcomma }} تومان </span>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                            </a>
+                        {% endif %}
+
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+
+    <script>
+
+
+        function addToCartFunc(p_slug, url) {
+            var quantity = $('#quantity').val();
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: {
+                    'p_slug': p_slug,
+                    'quantity': quantity,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    if (response === 'success') {
+                        console.log('با موفقیت به سبد خرید اضافه شد');
+                    } else {
+                        console.log('خطایی رخ داده است، لطفا چک کنید!');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('خطایی رخ داده است: ' + error);
+                }
+            });
+        }
+        function addToVarCartFunc(selected_size, url) {
+            var quantity = $('#var-quantity').val();
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: {
+                    'quantity': quantity,
+                    'selected_size': selected_size,
+                },
+                success: function (response) {
+                    if (response === 'success') {
+                        console.log('با موفقیت به سبد خرید اضافه شد');
+                    } else {
+                        console.log('خطایی رخ داده است، لطفا چک کنید!');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('خطایی رخ داده است: ' + error);
+                }
+            });
+                event.preventDefault();
+
+        }
+
+
+        function AddVarLike(p_id, url) {
+
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: {
+                    'p_id': p_id
+                },
+                success: function (data) {
+                    let like_product = document.getElementById('like_var_product')
+                    if (data['liked']) {
+                        like_product.classList.remove('fa-regular')
+                        like_product.classList.add('fa-solid')
+                    } else {
+                        like_product.classList.add('fa-regular')
+                        like_product.classList.remove('fa-solid')
+                    }
+
+                }
+            })
+        }
+
+        function AddLike(p_slug, url) {
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: {
+                    'p_slug': p_slug
+                },
+                success: function (data) {
+                    let like_product = document.getElementById('like_product')
+                    if (data['liked']) {
+                        like_product.classList.remove('fa-regular')
+                        like_product.classList.add('fa-solid')
+                    } else {
+                        like_product.classList.add('fa-regular')
+                        like_product.classList.remove('fa-solid')
+                    }
+
+                }
+            })
+
+        }
+
+        {##}
+        {#document.addEventListener("DOMContentLoaded", function () {#}
+        {#    const colorButtons = document.querySelectorAll('button[name="selected_color"]');#}
+        {#    const sizeSelect = document.getElementById("sizeSelect");#}
+        {##}
+        {#    colorButtons.forEach(button => {#}
+        {#        button.addEventListener("click", function () {#}
+        {#            sizeSelect.form.submit();#}
+        {#        });#}
+        {#    });#}
+        {##}
+        {#    sizeSelect.addEventListener("change", function () {#}
+        {#        this.form.submit();#}
+        {#    });#}
+
+        function like_product(p_slug, like_url, login_url) {
+            $.ajax({
+                url: like_url,
+                type: 'get',
+                data: {
+                    'p_slug': p_slug
+                },
+                success: function (data) {
+                    if (data['login-required']) {
+                        window.location.href = login_url
+                    }
+                    let like_btn = document.getElementById('like_btn')
+                    if (data['liked']) {
+                        like_btn.classList.remove('fa-regular')
+                        like_btn.classList.add('fa-solid')
+                    } else {
+                        like_btn.classList.remove('fa-solid')
+                        like_btn.classList.add('fa-regular')
+                    }
+                }
+
+            })
+
+        }
+
+        document.addEventListener("click", function (event) {
+            var target = event.target;
+            var formId = target.getAttribute("data-target");
+            var form = document.getElementById(formId);
+            if (form) {
+                form.classList.toggle("d-none");
+            }
+        }, false);
+
+        const colorButtons = document.querySelectorAll('.color-button');
+
+        colorButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const color = this.name;
+                const sizeOptions = document.querySelectorAll('#size option');
+
+                sizeOptions.forEach(option => {
+                    const optionColor = option.getAttribute('data-color');
+                    if (optionColor === color) {
+                        option.style.display = 'block'; // Show the option
+                    } else {
+                        option.style.display = 'none'; // Hide the option
+                    }
+                });
+            });
+        });
+
+        $('.owl-carousel').owlCarousel({
+            loop: false,
+            rtl: true,
+            margin: 10,
+            responsiveClass: true,
+            responsive: {
+                0: {
+                    items: 1,
+                    nav: true
+                },
+                600: {
+                    items: 3,
+                    nav: false
+                },
+                1000: {
+                    items: 5,
+                    nav: true,
+                    loop: false
+                }
+            }
+        })
+
+
+        $(".qtyminus").on("click", function () {
+            var now = $(".qty").val();
+            if ($.isNumeric(now)) {
+                if (parseInt(now) - 1 > 0) {
+                    now--;
+                }
+                $(".qty").val(now);
+            }
+        })
+        $(".qtyplus").on("click", function () {
+            var now = $(".qty").val();
+            if ($.isNumeric(now)) {
+                $(".qty").val(parseInt(now) + 1);
+            }
+        });
+        const indicator = document.getElementsByClassName('indicator')
+        const main = document.querySelector('.main')
+        for (let i = 0; i < indicator.length; i++) {
+            indicator[i].onclick = (e) => {
+                for (let a = 0; a < indicator.length; a++) {
+                    indicator[i].classList.remove('active')
+                }
+                indicator[i].classList.add('active')
+                main.src = e.target.src;
+            }
+        }
+        $('#SearchBoxBrand').on('keyup', function () {
+            var query = $(this).val();
+            $.ajax({
+                url: '/',
+                type: 'get',
+                data: {
+                    'query': query
+                },
+                success: function (data) {
+                    console.log(data)
+                    // $('#resultSearchBrand').html(data);
+                    $('#resultSearchBrand').empty();
+                    $.each(data, function (index, brand) {
+                        $('#resultSearchBrand').append('<p>' + brand.name + '</p>');
+                    });
+                }
+            });
+        });
+
+        $('.menu .item')
+            .tab()
+        ;
+
+    </script>
+{% endblock %}
+
+
+{#                    {% for comment in comments %}#}
+{#                        <i class="fa fa-user rounded-pill border p-3"></i>#}
+{#                        <div class="d-flex flex-column border-bottom align-items-start justify-content-start">#}
+{#                            <p>{{ comment.user.full_name }}</p>#}
+{#                            <p>{{ comment.body | safe }}</p>#}
+{#                        </div>#}
+{#                        {% for rep in comment.replay_comment.all %}#}
+{#                            <i class="fa fa-user rounded-pill border p-3"></i>#}
+{#                            <div class="d-flex flex-column border-bottom align-items-start justify-content-start">#}
+{#                                ریپلای شده#}
+{#                                <p>{{ rep.user.full_name }}</p>#}
+{#                                <p>{{ rep.title }}</p>#}
+{#                                <p>{{ rep.body | safe }}</p>#}
+{#                            </div>#}
+{#                        {% endfor %}#}
+{#                    {% endfor %}#}
+{#</div>#}
+
+
+{#    <div class="container mt-4 p-4 rounded" style="background: #fcfcfc">#}
+{#    <div class="row d-flex justify-content-between gap-1">#}
+{#        <div class="col-12 shadow  p-3 d-flex align-items-center">#}
+{#            <div class="col-3">#}
+{#                <p class="fw-bold fs-4">{{ product.name }}</p>#}
+{#                <p>{{ product.sub_name }}</p>#}
+{#                <div>#}
+{#                    <p class="fw-bold">ویژگی محصول:</p>#}
+{#                    <p>{{ product.desc |safe }}</p>#}
+{#                </div>#}
+{#                <p class=""> برند محصول: {{ product.brand }}</p>#}
+{#                <p>دسته بندی محصول :{{ product.category2 }}</p>#}
+{#                <p>وزن محصول: {{ product.weight }} گرم</p>#}
+{#                <p>{{ product.weight.Computing_Price }}</p>#}
+
+
+{#            </div>#}
+{#            <div class="col-3">#}
+{#                {% if product.status == 'None' %}#}
+{#                {% if product.discount > 0 %}#}
+{#                    <p class="text-secondary fw-bold"#}
+{#                       style="text-decoration-line:  line-through">{{ product.price | intcomma }} تومان </p>#}
+{##}
+{#                    <div class="col-3 ">#}
+{#                        <p class="discount">% {{ product.discount }} </p>#}
+{#                    </div>#}
+{#                {% endif %}#}
+{#                <p class="fw-bold fs-4 mt-3" style="color: green">{{ product.after_discount | intcomma }} <span#}
+{#                        class="fw-bold">تومان</span></p>#}
+{#                {% else %}#}
+{#                    <p>coming soon</p>#}
+{#                {% endif %}#}
+{#                    <div class="d-flex align-items-center flex-row">#}
+{##}
+{#                        <a class="btn btn-dark" href="{% url 'Products:Favourite' product.slug %}">#}
+{#                            <i class="fa-regular fa-heart"></i>#}
+{#                        </a>#}
+{#                        <button>#}
+{#                            <a href="{% url 'Products:CompareAddPro'  product.slug product.category2.id %}"#}
+{#                               class="btn btn-light">#}
+{#                                <i class="fa-solid fa-code-compare"></i>#}
+{#                            </a>#}
+{#                        </button>#}
+{##}
+{#                    </div>#}
+{#                </form>#}
+{#                    <form action="" name="">#}
+{#                        <select name="user_color" id="" onchange="this.form.submit()">#}
+{#                            {% for var in product.var_product.all %}#}
+{#                                <option {% if selected_color.id == var.id %} selected {% endif %}#}
+{#                                                                             value="{{ var.id }}">{{ var.color.name }}</option>#}
+{#                            {% endfor %}#}
+{#                        </select>#}
+{##}
+{#                        <select name="user_size" id="" onchange="this.form.submit()">#}
+{#                            {% for v in product.var_product.all %}#}
+{#                                <option {% if selected_size.id == var.id %} selected {% endif %}#}
+{#                                                                            value="{{ v.id }}">{{ v.size.name }}</option>#}
+{#                            {% endfor %}#}
+{#                        </select>#}
+{##}
+{#                    </form>#}
+{##}
+{#                <div class="d-flex">#}
+{#                    <i class="fa-solid fa-eye"></i>#}
+{#                    <span>{{ product.countSeen }}</span>#}
+{#                </div>#}
+{#            </div>#}
+{#            <div class="col-3">#}
+{##}
+{#                    <div class=" rounded border">#}
+{#                <div class="border col-3 justify-content-center d-flex align-items-center">#}
+{#                                    <button type="button" class=" p-1 rounded ">#}
+{#                                        <i class="fa-solid  fa-minus" style="font-size: 13px"#}
+{#                                           onClick="if (('.inp').value >=1 ){document.querySelector('.inp').value--} "></i>#}
+{#                                    </button>#}
+{#                <form method="post" novalidate action="" style="width: 15rem">#}
+{#                        <input  type="text"  name="quantity"#}
+{#                           class="inp">#}
+{#                </form>#}
+{#                                    <button type="button" class=" p-1 rounded">#}
+{#                                        <i class="fa-solid  fa-plus" style="font-size: 13px"#}
+{#                                           onClick="document.querySelector('.inp').value++"></i>#}
+{#                                    </button>#}
+{##}
+{#                </div>#}
+{##}
+{#                    </div>#}
+{##}
+{#                </div>#}
+{##}
+{##}
+{#            </div>#}
+{##}
+{##}
+{#            <div class="col-3 d-flex align-items-center justify-content-center flex-column border rounded">#}
+{#                <img src='{{ product.image.url }}' alt="" width="280rem" height="280rem" class="main m-3">#}
+{#                <section class="">#}
+{#                    <div class=" d-flex justify-content-center gap-2 ">#}
+{#                        {% for image in product.extra_image_product.all %}#}
+{#                            <img src="{{ image.image.url }}" width="100rem" class="border indicator">#}
+{#                        {% endfor %}#}
+{#                    </div>#}
+{##}
+{#                </section>#}
+{#            </div>#}
+{##}
+{#        </div>#}
+{##}
+
+{#        </div>#}
+{##}
+{#    </div>#}
+
+
+{#===============================================================#}
+{#                                    <form method="post" novalidate#}
+{#                                          class="display-flex align-items-center">#}
+{#                                        {% csrf_token %}#}
+{#                                        <div class="display-flex align-items-center ">#}
+{#                                            <div class="qtyminus">-</div>#}
+{#                                            <input type="text" name="quantity" value="1" class="qty"#}
+{#                                                   style="border: 1px solid;">#}
+{#                                            <div class="qtyplus">+</div>#}
+{#                                        </div>#}
+{#                                        <button type="submit" class="round-black-btn mx-4"#}
+{#                                                onclick="addToCartFunc('{{ product.slug }}', '{% url 'cart:CartAdd' %}')">#}
+{#                                            اضافه به سبد خرید#}
+{#                                        </button>#}
+{#                                    </form>#}
+
+{#                                    <form method="post" novalidate action="{% url 'cart:VariantCartAdd' product.id %}"#}
+{#                                          class="display-flex align-items-center">#}
+{#                                        {% csrf_token %}#}
+{#                                        <div class="display-flex align-items-center ">#}
+{#                                            <div class="qtyminus">-</div>#}
+{#                                            <input type="text" name="quantity" value="1" class="qty"#}
+{#                                                   style="border: 1px solid;">#}
+{#                                            <div class="qtyplus">+</div>#}
+{#                                        </div>#}
+{#                                        <button type="submit" class="round-black-btn mx-4">اضافه به سبد خرید</button>#}
+{#                                    </form>#}
+
+{#                                    <form method="post" novalidate action="{% url 'cart:CartAdd' product.slug  %}"#}
+{#                                          class="display-flex align-items-center">#}
+{#                                        {% csrf_token %}#}
+{#                                        <div class="display-flex align-items-center ">#}
+{#                                            <div class="qtyminus">-</div>#}
+{#                                            <input type="text" name="quantity" value="1" class="qty"#}
+{#                                                   style="border: 1px solid;">#}
+{#                                            <div class="qtyplus">+</div>#}
+{#                                        </div>#}
+{#                                        <button type="submit" class="round-black-btn mx-4">اضافه به سبد خرید</button>#}
+{#                                    </form>#}

@@ -1,0 +1,41 @@
+{% extends '_base.html' %}
+{% block title %}{% endblock %}
+{% load humanize %}
+{% block content %}
+    <div class="container" style="height: 60vh">
+        <div class="row text-center justify-content-center d-flex align-items-center">
+            <div class="col-6 d-flex card flex-column">
+                {% if order.status == '1' %}
+                    <div class="card py-3" style="background-color: green">
+                        <p> تراکنش موفق</p>
+                    </div>
+                {% else %}
+                    <div class="card py-3" style="background-color: darkred">
+                        <p>تراکنش ناموفق </p>
+                    </div>
+                {% endif %}
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="fw-bold">مبلغ پرداختی </p>
+                    <p>{{ order.buy | intcomma }} تومان </p>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="fw-bold">شماره فاکتور</p>
+                    <p>{{ order.invoice_id }}</p>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="fw-bold">شماره کارت</p>
+                    <p>{{ order.cardnumber }}</p>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="fw-bold">بانک</p>
+                    <p>{{ order.bank }}</p>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="fw-bold">شماره تراکنش</p>
+                    <p>{{ order.transid }}</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

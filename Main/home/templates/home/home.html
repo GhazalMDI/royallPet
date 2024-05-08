@@ -1,0 +1,517 @@
+{% extends '_base.html' %}
+{% load home_ft %}
+
+
+{% load static %}
+{% load humanize %}
+{% block title %}
+    RoyallPet
+{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'home/css/style.css' %}">
+    <style>
+        :root {
+            --first-color: #ffffff;
+        {#--second-color: #DCFAFB;#} --third-color: #FFE8DF;
+            --accent-color: #b31312;
+            --dark-color: #161616;
+        }
+
+        /*Tipografia responsive*/
+        :root {
+            --body-font: 'Open Sans';
+            --h1-font-size: 1.5rem;
+            --h3-font-size: 1rem;
+            --normal-font-size: 0.938rem;
+            --smaller-font-size: 0.75rem;
+        }
+
+        @media screen and (min-width: 768px) {
+            :root {
+                --h1-font-size: 2rem;
+                --normal-font-size: 1rem;
+                --smaller-font-size: 0.813rem;
+            }
+        }
+
+        /*-- BASE --*/
+        *, ::after, ::before {
+            box-sizing: border-box;
+        }
+
+        body {
+        {#margin: 2rem 0 0 0;#} background-color: #fff;
+            color: var(--dark-color);
+            font-family: var(--body-font);
+        }
+
+        h1 {
+            font-size: var(--h1-font-size);
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /*-- LAYAOUT --*/
+        .main {
+            padding: 2rem 0;
+        }
+
+
+        .now-container {
+            background-color: #eee9e9;
+            padding: 10px 5px;
+
+        }
+
+        {#.container-fluid {#}
+        {#    margin: 0;#}
+        {#    padding: 0;#}
+
+
+        .bd-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            max-width: 1200px;
+            margin-left: 2.5rem;
+            margin-right: 2.5rem;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        /*-- PAGES --*/
+        .title-shop {
+            position: relative;
+            margin: 0 2.5rem;
+        }
+
+        .title-shop::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 72px;
+            height: 2px;
+            background-color: var(--dark-color);
+            margin-left: .25rem;
+        }
+
+        /*-- COMPONENT --*/
+        .card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        article:nth-child(1) {
+            background-color: var(--first-color);
+        }
+
+        article:nth-child(2) {
+            background-color: var(--second-color);
+        }
+
+        article:nth-child(3) {
+            background-color: var(--third-color);
+        }
+
+        article:nth-child(4) {
+            background-color: var(--second-color);
+        }
+
+        .card__img {
+            width: 180px;
+            height: auto;
+            padding: 3rem 0;
+            transition: .5s;
+        }
+
+        .card__name {
+            position: absolute;
+            left: -35%;
+            top: 0;
+            width: 3.5rem;
+            height: 100%;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            text-align: center;
+            background-color: var(--dark-color);
+            color: #fff;
+            font-weight: bold;
+            transition: .5s;
+        }
+
+        .card__icon {
+            font-size: 1.5rem;
+            color: var(--dark-color);
+        }
+
+        .card__icon:hover {
+            color: var(--accent-color);
+        }
+
+        .card__precis {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            transition: .5s;
+        }
+
+        .card__preci {
+            display: block;
+            text-align: center;
+        }
+
+        .card__preci--before {
+            font-size: var(--smaller-font-size);
+            color: var(--accent-color);
+            margin-bottom: .25rem;
+        }
+
+        .card__preci--now {
+            font-size: var(--h3-font-size);
+            font-weight: bold;
+        }
+
+        /*Move left*/
+        .card:hover {
+            box-shadow: 0 .5rem 1rem #D1D9E6;
+        }
+
+        .card:hover .card__name {
+            left: 0;
+        }
+
+        .card:hover .card__img {
+            transform: rotate(30deg);
+            margin-left: 3.5rem;
+        }
+
+        .card:hover .card__precis {
+            margin-left: 3.5rem;
+            padding: 0 1.5rem;
+        }
+
+
+    </style>
+{% endblock %}
+{% block content %}
+    <div id="carouselExample" class="carousel slide">
+        <div class="carousel-inner" style="width: 100%">
+            {% for banner in banners %}
+                <div class="carousel-item active" style="width: 100%;">
+                    <img src='{{ banner.image.url }}' class="d-block w-md-100 w-lg-100 w-100 h-75 " style="width: 100%;"
+                         alt="...">
+                </div>
+            {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+    <div class="container-fluid my-5">
+        <div class="row">
+            <p class="fw-bold fs-3 mt-2">محصولات ویژه</p>
+        </div>
+        <div class=" owl-carousel owl-theme mb-5">
+            {% for product in products %}
+                {% if product.discount %}
+                    <div class="item" style="margin-bottom: 15px">
+                        <article style="height: 27rem" class="card">
+                            <a href="{% url 'Products:ProductDetails' product.id product.slug %}">
+                                <div class="card__img">
+                                    <img src="{{ product.image.url }}" alt="" style="width: 300px">
+                                </div>
+                            </a>
+                            <div class="card__name">
+                                <p>{{ product.name }}</p>
+                            </div>
+                            <div class="card__precis">
+                                {#                                <i id="like_product-{{ product.slug }}"#}
+                                {#                                   onclick="addLikeHome('{{ product.slug }}','{% url 'Products:Favourite' %}')"#}
+                                {#                                   class="fa {% if product|check_like:request.user == 'fa-solid' %}fa-solid {% else %}fa-regular{% endif %} fa-heart fs-2 "#}
+                                {#                                   style="cursor: pointer;"></i>#}
+                                <div>
+                                    <span class="card__preci card__preci--now">{{ product.price | intcomma }} تومان </span>
+                                    <span class="card__preci card__preci--before">{{ product.after_discount | intcomma }} تومان </span>
+                                </div>
+                                {#                                <a href="" class="card__icon">#}
+                                <i onclick="addToCartFunc('{{ product.slug }}', '{% url 'cart:CartAdd' %}')"
+                                   class=" fs-3 fa-solid fa-cart-shopping" style="cursor: pointer;"></i>
+                                {#                                </a>#}
+                            </div>
+                        </article>
+
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% if len_seen > 0 %}
+        <div class="  d-block container-fluid" style="margin-bottom:10rem ">
+            <div class="row">
+                <p class="fw-bold fs-3 mt-2">محصولات بازدید شده</p>
+            </div>
+            <div class="owl-carousel owl-theme owl-carousel-1" style="height: 40vh;">
+                {% for item in seen %}
+                    <div class="item" style="margin-bottom: 15px">
+                        <a href="{% url 'Products:ProductDetails' item.id item.slug %}">
+                            <article class="card" style="height: 25rem">
+                                <div class="card__img">
+                                    <img src="{{ item.image }}" alt="">
+                                </div>
+                        </a>
+                        <div class="card__name">
+                            <p>{{ item.name }}</p>
+                        </div>
+                        <div class="card__precis">
+                            <div>
+                                <span class="card__preci card__preci--now">{{ item.price | intcomma }} تومان </span>
+                                <span class="card__preci card__preci--before">{{ item.after_discount | intcomma }} تومان </span>
+                            </div>
+                            <i onclick="addToCartFunc('{{ item.slug }}', '{% url 'cart:CartAdd' %}')"
+                               class=" fs-3 fa-solid fa-cart-shopping" style="cursor: pointer;"></i></div>
+                        </article>
+
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <p class="fw-bold fs-3">محصولات به تازگی اضافه شده</p>
+        <div class="d-flex flex-row-reverse align-items-center now-container">
+            <div class=" loop owl-carousel owl-theme  d-flex align-items-center">
+                {% for n in new_prod %}
+
+                    <article style="" class="card">
+                        <a href="{% url 'Products:ProductDetails' n.product.id n.product.slug %}">
+                            <div class="card__img">
+                                <img src="{{ n.product.image.url }}" alt="">
+                            </div>
+                        </a>
+                        <div class="card__name">
+                            <p>{{ n.product.name }}</p>
+                        </div>
+                        <div class="card__precis">
+                            <div>
+                                {% if n.product.discount %}
+                                    <span class="card__preci card__preci--before">{{ n.product.after_discount | intcomma }} تومان </span>
+                                {% endif %}
+                                <span class="card__preci card__preci--now">{{ n.product.price | intcomma }} تومان </span>
+                            </div>
+                            <i onclick="addToCartFunc('{{ n.product.slug }}', '{% url 'cart:CartAdd' %}')"
+                               class=" fs-4 fa-solid fa-cart-shopping" style="cursor: pointer;"></i>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+            <div class="d-flex align-items-center flex-column justify-content-center">
+                <img src="../../../media/home/2024/03/29/37820096-removebg-preview.png" style="width: 15rem" alt="">
+                <a href="{% url 'Products:Products' %}?all">مشاهده همه </a>
+            </div>
+        </div>
+    </div>
+    <div class="row px-5">
+        <p class="fw-bold fs-3 mt-2">محصولات گربه</p>
+        <div class="nonloop owl-carousel owl-theme ">
+            {% for cat in product_cat %}
+                <div class="" style="margin-bottom: 15px">
+                    <a href="{% url 'Products:ProductDetails' cat.id cat.slug %}">
+                        <div class="card d-flex align-items-center" style="height: 18rem">
+                            <p>{{ cat.name }}</p>
+                            <small>{{ cat.price }} تومان </small>
+                            <img src="{{ cat.image.url }}">
+                        </div>
+                    </a>
+                </div>
+
+            {% endfor %}
+        </div>
+    </div>
+    <div class="d-flex">
+        <div class="">
+            <img style="width: 47rem;height: 22rem"
+                 src="../../../media/home/2024/03/29/reflex.jpg" alt="">
+        </div>
+        <div class="">
+            <img style="width: 47rem;height: 22rem"
+                 src="../../../media/home/2024/03/29/reflex-plus.jpg"
+                 alt="">
+        </div>
+    </div>
+    <div class="row mt-3">
+        <p class="fw-bold fs-3">محصولات سگ</p>
+        <div class="nonloop owl-carousel owl-theme ">
+            {% for dog in product_dog %}
+                <div class="" style="margin-bottom: 15px">
+
+                    <article style="" class="card">
+                        <a href="{% url 'Products:ProductDetails' dog.id dog.slug %}">
+                            <div class="card__img">
+                                <img src="{{ dog.image.url }}" alt="">
+                            </div>
+                        </a>
+                        <div class="card__name">
+                            <p>{{ dog.name }}</p>
+                        </div>
+                        <div class="card__precis">
+                            <div>
+                                {% if dog.discount %}
+                                    <span class="card__preci card__preci--before">{{ dog.after_discount | intcomma }} تومان </span>
+                                {% endif %}
+                                <span class="card__preci card__preci--now">{{ dog.price | intcomma }} تومان </span>
+                            </div>
+                            <i onclick="addToCartFunc('{{ product.slug }}', '{% url 'cart:CartAdd' %}')"
+                               class=" fs-3 fa-solid fa-cart-shopping" style="cursor: pointer;"></i>
+                            {#                            <a href="" class="card__icon">#}
+                            {#                                <i class="fa-solid fa-cart-shopping"></i>#}
+                            {#                            </a>#}
+                        </div>
+                    </article>
+
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row">
+        <p class="fw-bold fs-3">برندها </p>
+        <div class=" owl-carousel owl-theme ">
+            {% for s in brands %}
+                <div class="item mb-2 d-flex align-items-center justify-content-center">
+                    {% if s.img %}
+                        <a href="{% url 'Products:Brand_Product' s.id %}">
+                            <div style="height: 10rem;width: 15rem;" class="card item">
+                                <img src="{{ s.img.url }}" alt="">
+                            </div>
+                        </a>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    <script src="{% static 'home/js/javascript.js' %}"></script>
+
+    <script>
+        function addToCartFunc(p_slug, url) {
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: {
+                    'p_slug': p_slug,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    if (response === 'success') {
+                        console.log('با موفقیت به سبد خرید اضافه شد')
+                    } else {
+                        console.log('خطایی رخ داده است: ' + response);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('خطایی رخ داده است: ' + error);
+                }
+            })
+        }
+
+        function addLikeHome(p_slug, url) {
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: {
+                    'p_slug': p_slug,
+                },
+                success: function (data) {
+                    let like_product = document.getElementById('like_product-' + p_slug);
+                    if (data['liked']) {
+                        like_product.classList.remove('fa-regular');
+                        like_product.classList.add('fa-solid');
+                    } else {
+                        like_product.classList.add('fa-regular');
+                        like_product.classList.remove('fa-solid');
+                    }
+                }
+            });
+        }
+
+
+        $('.owl-carousel').owlCarousel({
+            {#loop:true,#}
+            margin: 10,
+            rtl: true,
+            nav: true,
+            responsive: {
+                0: {
+                    items: 1
+                },
+                600: {
+                    items: 3
+                },
+                1000: {
+                    items: 5
+                }
+            }
+        })
+
+
+        $('.loop').owlCarousel({
+            center: true,
+            items: 2,
+            loop: true,
+            margin: 10,
+            responsive: {
+                600: {
+                    items: 4
+                }
+            }
+        });
+        var owl = $('.owl-carousel-1');
+        owl.owlCarousel({
+            items: 4,
+            loop: true,
+            margin: 10,
+            autoplay: true,
+            autoplayTimeout: 1000,
+            autoplayHoverPause: true
+        });
+        $('.play').on('click', function () {
+            owl.trigger('play.owl.autoplay', [1000])
+        })
+        $('.stop').on('click', function () {
+            owl.trigger('stop.owl.autoplay')
+        })
+        $('.nonloop').owlCarousel({
+            center: true,
+            items: 2,
+            loop: false,
+            margin: 10,
+            responsive: {
+                600: {
+                    items: 4
+                }
+            }
+        });
+
+    </script>
+{% endblock %}
+
+
+

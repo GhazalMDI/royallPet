@@ -1,0 +1,333 @@
+{% extends '_base.html' %}
+{% load static %}
+{% load humanize %}
+{% block title %}محصولات{% endblock %}
+{% block css %}
+    <link href="{% static 'products/style.css' %}" rel="stylesheet">
+    <style>
+        .discount_class {
+            background-color: #d2cbc9;
+            padding: 15px 20px;
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+            display: flex;
+            border-bottom-right-radius: 20px;
+            border-top-right-radius: 20px;
+            width: 20px;
+            height: 20px;
+            margin-top: 10px;
+        }
+
+        .card {
+            border-radius: 0;
+            border: 0.00002rem solid gainsboro;
+            width: 21rem;
+            height: 29rem;
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        @media screen and (max-width: 1000px) {
+            .card {
+                width: 17rem;
+                height: 20rem;
+                display: flex;
+                flex-direction: column;
+
+            }
+
+            .card > img {
+                width: 120px;
+            }
+
+            h5 {
+                font-size: 15px;
+
+            }
+
+            small {
+                font-size: xx-small;
+            }
+
+            p {
+                font-size: small;
+            }
+        }
+
+        {#@media only screen and (max-width: 500px) {#}
+        {#     .card {#}
+        {#        display: flex;#}
+        {#        align-items: center;#}
+        {#        flex-direction: row;#}
+        {#        width: 80rem;#}
+        {#        height: 21rem;#}
+        {#    }#}
+
+
+        @media only screen and (max-width: 765px) {
+            .card {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                width: 35rem;
+                height: 21rem;
+            }
+
+            .box {
+                display: flex;
+            }
+
+            h5 {
+                font-size: large;
+
+            }
+
+            small {
+                font-size: small;
+            }
+
+            p {
+                font-size: small;
+            }
+
+        }
+
+        @media only screen and (max-width: 400px) {
+            .card {
+                display: flex;
+                align-items: center;
+                flex-direction: row;
+                width: 30rem;
+            {#height: 10rem;#}
+            }
+        }
+
+
+        .bet {
+            margin: 0 0.02rem 0 0.02rem;
+        }
+
+        .card:hover {
+            box-shadow: 0px 0px 4px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        ul li {
+            list-style: none;
+        }
+
+        .btn-all {
+            background-color: darkred;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {#     <form class="d-flex col-md-12 col-lg-12 col-8" role="search" method="get" novalidate>#}
+    {#                    <input class="form-control w-75 me-2" type="text" name="search_product"#}
+    {#                           placeholder="محصول یا برند مورد نظر را جستجو کنید" aria-label="Search">#}
+    {#                    <button class="btn btn-outline-success" type="submit">#}
+    {#                        <i class="fa-solid fa-magnifying-glass"></i></button>#}
+    {#                </form>#}
+
+    <div class="container-fluid d-flex  ">
+        <div class="">
+            <div class="item d-none d-md-block d-lg-block" style="width: 200px">
+                <div class="header fw-bold d-flex align-items-center ">
+                    <i class="fa-solid fa-filter"></i>
+                    <p>فیلتر</p>
+                </div>
+                <ul>
+                    <li class="mt-4">
+                        <div class="d-flex flex-row align-items-center justify-content-between"><p> برند</p>
+                            <i class="fa-solid fa-angle-down" onclick="show()" style="cursor: pointer"></i></div>
+                        <form method="get" novalidate style="display: flex;width: 150px" id="filter" action=""
+                              class=" align-items-start flex-column">
+                            <p>{{ filters.form.brand }}</p>
+{#                            <input type="submit" value="جست و جو" class="btn btn-dark mb-5 col-12">#}
+                    </li>
+                    <li>
+                        <div class="d-flex flex-row align-items-center justify-content-between"><p>محدوده قیمت</p><i
+                                class="fa-solid fa-angle-down" style="cursor: pointer" onclick="show1()"></i></div>
+{#                        <form action="" method="get" novalidate style="display: flex" class=" flex-column align-items-start justify-content-between#}
+{#                        form-control py-4" id="price">#}
+                            <label for="less">از </label> <input id="less" type="text" name="less" class="form-control"
+                                                                 placeholder=" قیمت">
+                            <label for="more">تا</label><input id="more" type="text" name="more" class="form-control"
+                                                               placeholder=" قیمت">
+                            <input type="submit" class="btn btn-dark mt-3" value="جست و جو">
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class=" d-flex align-items-top ms-3 flex-column">
+            <div class="item mb-3">
+                <div class="header d-flex align-items-center ">
+                    <i class="fa-solid fa-arrow-up-wide-short  "></i>
+                    <p>
+                        مرتب سازی</p>
+                </div>
+                <div class="d-md-flex d-lg-flex ">
+                    <form method="get" action="" novalidate name="sort_product" class="d-flex align-items-center">
+                        <input class="border-0 outline-0  mx-2" type="submit" name="sort_product" id="expensive"
+                               style="background-color: white"
+                               value="گران ترین">
+                        <input class="border-0 outline-0  mx-2" type="submit" name="sort_product"
+                               style="background-color: white"
+                               value="ارزان ترین">
+                        <input class="border-0 outline-0  mx-2" type="submit" name="sort_product"
+                               style="background-color: white"
+                               value=" پربازدیدترین">
+                        <input class="border-0 outline-0 d-md-flex d-lg-flex d-none  mx-2" type="submit"
+                               style="background-color: white"
+                               name="sort_product"
+                               value="پر فروش ترین">
+                        <input class="border-0 outline-0 d-md-flex d-lg-flex d-none  mx-2" type="submit"
+                               style="background-color: white"
+                               name="sort_product"
+                               value="محصولات پرتخفیف">
+
+                         <input class="border-0 outline-0 d-md-flex d-lg-flex d-none  mx-2" type="submit"
+                               style="background-color: white"
+                               name="sort_product"
+                               value="جدیدترین ها">
+                        <span class="mx-2 d-flex d-md-none d-lg-none" data-bs-toggle="modal"
+                              data-bs-target="#exampleModal"
+                              style="cursor: pointer">فیلتر </span>
+
+                    </form>
+                </div>
+            </div>
+            <div class=" d-flex align-items-top ms-3" >
+                <div class="row d-flex align-items-center justify-content-start">
+                    {% for product in products %}
+                        <div class="col-lg-3  col-md-4 col-8 col-xxl-3 box mx-md-5">
+                            <a href="{% url 'Products:ProductDetails' product.id product.slug %}" class=" col-4">
+                                <div class="card d-flex">
+                                    {% if product.discount > 0 %}
+                                        <div class="ms-auto  discount_class">{{ product.discount }}%</div>{% endif %}
+                                    <img src="{{ product.image.url }}" class="w-xs-25" alt="..." width="200px"
+                                         style="  vertical-align : middle; margin-left: auto;margin-right: auto;">
+                                    <div class="card-body justify-content-end d-flex flex-column" dir="rtl">
+                                        <h5 class="card-title">{{ product.name }}</h5>
+                                        <small>{{ product.sub_name }}</small>
+                                        <p class="card-text"></p>
+                                        <p>{{ product.price | intcomma }} تومان </p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+           <nav aria-label="...">
+                <ul class="pagination justify-content-center">
+                    {% if  products.has_next %}
+                        <li class="page-item"><a class="page-link"
+                                                 href="?page={{ products.next_page_number }}&{{ url_data }}">بعدی</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><a class="page-link"
+                                                          href="">بعدی</a></li>
+                    {% endif %}
+                    <li class="page-item  active"><a class="page-link" href="#">{{ products.number }}</a></li>
+                    {% if  products.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link"
+                               href="?page={{ products.previous_page_number }}&{{ url_data }}">قبلی</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="">قبلی</a>
+                        </li>
+                    {% endif %}
+
+                </ul>
+            </nav>
+
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">برند مورد نظر را انتخاب کنید.</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="">
+                        <div class="item" style="width: 480px">
+                            <div class="header fw-bold d-flex align-items-center ">
+                                <i class="fa-solid fa-filter"></i>
+                                <p>فیلتر</p>
+                            </div>
+                            <ul>
+                                <li class="mt-4 border rounded p-2">
+                                    <div class="d-flex flex-column align-items-start justify-content-between"><p>
+                                        برند</p>
+                                        <form method="get" novalidate style="display: flex" id="filter" action=""
+                                              class=" align-items-start flex-column ">
+                                            <p>{{ filters.form.brand }}</p>
+                                            <input type="submit" value="جست و جو" class="btn btn-dark mb-5 col-12">
+                                        </form>
+                                </li>
+                                <li class="border rounded mt-4 p-2">
+                                    <div class="d-flex flex-row align-items-center justify-content-between"><p>
+                                        کیلوگرم</p></div>
+                                </li>
+                                <li class="border rounded mt-4 p-2">
+                                    <div class="d-flex flex-row align-items-center justify-content-between"><p>محدوده
+                                        قیمت</p></div>
+                                    <form action="" method="get" novalidate style="display: flex" class=" flex-column align-items-start justify-content-between
+                       py-4" id="price">
+                                        <label for="less">از </label> <input id="less" type="text" name="less"
+                                                                             class="form-control"
+                                                                             placeholder=" قیمت">
+                                        <label for="more">تا</label><input id="more" type="text" name="more"
+                                                                           class="form-control"
+                                                                           placeholder=" قیمت">
+                                        <input type="submit" class="btn btn-all mt-3 col-12" value="اعمال">
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        const filter = document.getElementById('filter')
+        const price = document.getElementById('price')
+
+        function show() {
+            if (filter.style.display === 'flex') {
+                filter.style.display = 'none'
+
+            } else {
+                filter.style.display = 'flex'
+            }
+        }
+
+        function show1() {
+            if (price.style.display === 'flex') {
+                price.style.display = 'none'
+
+            } else {
+                price.style.display = 'flex'
+            }
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,301 @@
+{% extends '_base.html' %}
+{% load humanize %}
+{% load static %}
+{% block title %}مقایسه ی محصول
+{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'products/style.css' %}">
+    <style>
+        .product-card {
+            max-width: 380px;
+            position: relative;
+            box-shadow: 0 2px 5px #333;
+            margin: 0 auto;
+            background: #1A2238;
+        }
+
+        .spacing {
+            margin: 10px;
+        }
+
+        .badge {
+            position: absolute;
+            left: 0;
+            top: 20px;
+            text-transform: uppercase;
+            font-size: 13px;
+            font-weight: 700;
+            background: #6E6E6E;
+            color: #BCFD4C;
+            padding: 3px 10px;
+        }
+
+        .product-thumb {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+            padding: 50px;
+            background: #ffffff;
+            position: relative;
+        }
+
+        .product-thumb img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .product-details {
+            padding: 30px;
+        }
+
+        .product-category {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #9DAAF2;
+            margin-bottom: 18px;
+        }
+
+        .product-details h4 a {
+            font-weight: 500;
+            display: block;
+            margin-bottom: 18px;
+            text-transform: uppercase;
+            color: #00ABE1;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .product-details h4 a:hover {
+            color: #F52544;
+        }
+
+        .product-details p {
+            font-size: 15px;
+            line-height: 22px;
+            margin-bottom: 18px;
+            color: #99DDFF;
+        }
+
+        .product-bottom-details {
+            overflow: hidden;
+            padding-top: 20px;
+            position: absolute;
+            right: 40%;
+            bottom: 30px;
+        }
+
+        .product-bottom-details div {
+        {#float: left;#} width: 50%;
+
+        }
+
+        .product-price {
+            font-size: 18px;
+            color: #F52544;
+            font-weight: 600;
+        }
+
+        .product-price small {
+            font-size: 80%;
+            font-weight: 400;
+            text-decoration: line-through;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .product-links {
+            text-align: right;
+        }
+
+        .product-links a {
+            display: inline-block;
+            margin-left: 5px;
+            color: #5CE0D8;
+            transition: 0.3s;
+            font-size: 17px;
+        }
+
+        .product-links a:hover {
+            color: #F52544;
+        }
+
+
+        .card {
+            max-width: 30em;
+            flex-direction: row;
+            background-color: #696969;
+            border: 0;
+            box-shadow: 0 7px 7px rgba(0, 0, 0, 0.18);
+            margin: 3em auto;
+            padding: 10px;
+        }
+
+        .card.dark {
+            color: #fff;
+        }
+
+        .card.card.bg-light-subtle .card-title {
+            color: dimgrey;
+        }
+
+        .card img {
+            max-width: 25%;
+            margin: auto;
+            padding: 0.5em;
+            border-radius: 0.7em;
+        }
+
+        .card-body {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .text-section {
+            width: 6rem;
+        }
+
+        .cta-section {
+            max-width: 40%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: space-between;
+        }
+
+        .cta-section .btn {
+            padding: 0.3em 0.5em;
+            /* color: #696969; */
+        }
+
+        .card.bg-light-subtle .cta-section .btn {
+            background-color: #898989;
+            border-color: #898989;
+        }
+
+        @media screen and (max-width: 475px) {
+            .card {
+                font-size: 0.9em;
+            }
+        }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="d-flex align-items-center justify-content-center">
+            {% for c in compare %}
+                <div id="product-{{ c.slug }}" style="width: 36rem;height: 70rem" class="product-card spacing">
+                    {% if c.discount %}
+                    {% endif %}
+                    <div class="product-thumb">
+                        <img alt="{{ c.name }}" style="width: 150px;height: 150px" src="{{ c.image }}">
+                    </div>
+                    <div class="product-details">
+                        <span class="product-category">{{ c.name }}</span>
+                        <h6><a href="#">{{ c.brand }}</a></h6>
+                        <p>{{ c.weight }} گرم </p>
+                        <p>{{ c.desc | safe }}</p>
+                        {#                    <hr>#}
+
+                        <div class="product-bottom-details d-flex align-items-end justify-content-between ">
+
+                            <div class="product-price"><small>
+                                {% if c.discount %}{{ c.after_discount }}{% endif %}</small> {{ c.price | intcomma }}تومان
+                            </div>
+                            {#                            <a href="{% url 'Products:CompareDelete'  c.slug  c.category_two %}">#}
+                            <i onclick="removeCompare('{{ c.slug }}','{{ c.category_two }}','{% url 'Products:CompareDelete' %}')"
+                               class="fa-solid fa-trash fs-3"></i>
+                            {#                            </a>#}
+                        </div>
+                    </div>
+                </div>
+
+            {% endfor %}
+            {% if  c_id and c_cat_id and compare %}
+                {% if not disable %}
+                    <div class="col-4">
+                        <button class="btn btn-dark" href="{% url 'Products:Compare' c_id c_cat_id %}"
+                                type="submit" data-bs-toggle="modal"
+                                data-bs-target="#exampleModal">اضافه کردن محصول به مقایسه
+                        </button>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="border py-4 px-2">محصولی را برای مقایسه از <a class="text-danger"
+                                                                          href="{% url 'Products:Products' %}">لیست
+                    محصولات </a> اضافه کنید
+                </div>
+            {% endif %}
+        </div>
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">محصولی را از دسته بندی انتخاب نمایید </h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body d-flex align-items-center flex-column">
+                        {% for p in products_fi %}
+                            <a href="{% url 'Products:addProductsCompare' p.id p.category2.id p.slug %}" type="submit"
+                               style="outline: none;border: none;background-color: white">
+                                <div class="card bg-light-subtle mt-4 " style="width: 35rem">
+                                    <img src="{{ p.image.url }}"
+                                         class="card-img-top" alt="...">
+                                    <p class="">{{ p.name }}</p>
+
+                                    <div class="card-body">
+
+                                        <div class="cta-section">
+                                            <div>{{ p.price | intcomma }} تومان</div>
+                                            <a href="{% url 'Products:ProductDetails' p.id p.slug %}"
+                                               class="btn btn-dark">جزئیات</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        {% endfor %}
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    {#    <div class="col-2">#}
+
+    {#    </div>#}
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        function removeCompare(c_slug, c_cat_two, url) {
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: {
+                    'c_slug': c_slug,
+                    'c_cat_two': c_cat_two
+                },
+                success: function (response) {
+                    if (response === 'error') {
+                        console.log('خطایی رخ داده است: ' + response);
+                    } else {
+                        $("#product-" + c_slug).remove();
+                        console.log('با موفقیت به سبد خرید اضافه شد')
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('خطایی رخ داده است: ' + error);
+                }
+            })
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends '_base.html' %}
+{% load static %}
+{% block css %}
+{% endblock %}
+{% block content %}
+    <div class="container align-items-center d-flex justify-content-center">
+        <div class="col-4  p-5">
+            <h3>ثبت نام در سایت</h3>
+            <form action="" method="post" novalidate class=" flex-column d-flex align-items-center justify-content-center">
+                {% csrf_token %}
+                <br>
+                <small>کد به شماره ی {{ phone }} ارسال شد</small>
+                {{ form }}
+{#                <input type="text" id="Random_code" name="Random_code" class="form-control">#}
+                <br>
+                 <p id="time"></p>
+                <br>
+                <input type="submit" value="تایید" class="btn btn-dark" onclick="">
+
+            </form>
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'accounts/js/accounts.js' %}"></script>
+{% endblock %}

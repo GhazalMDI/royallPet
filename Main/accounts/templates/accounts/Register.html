@@ -1,0 +1,39 @@
+{% extends '_base.html' %}
+{% load static %}
+{% block css %}
+    <link style="{% static 'accounts/css/style.css' %}">
+    <style>
+
+    </style>
+{% endblock %}
+{% block title %} ورود به سایت {% endblock %}
+{% block content %}
+    <div class="container mt-5 py-3">
+        <div class="flex-column d-flex align-items-center justify-content-center ">
+            <div class="col-8 text-center">
+                <p class="fw-bold fs-3">
+                    پت شاپ
+{#                <img src="https://fidiboproj1.s3.ir-thr-at1.arvanstorage.ir/Screenshot-(44).png?versionId="#}
+{#                     width="200px">#}
+            </p>
+            </div>
+           <div class="col-8 flex-column d-flex  align-items-center justify-content-center ">
+                <form action="" method="post" novalidate class=" p-md-2  col-gl-6 col-md-6 col-8
+            ">
+                {% csrf_token %}
+                <div class="mt-2">
+                    {{ form }}
+                </div>
+
+                <div class="col-8 mt-lg-3 my-4">
+                    <input type="submit" class="btn btn-dark" value="دریافت کد تایید">
+                </div>
+            </form>
+           </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block js %}
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends '_base.html' %}
+{% load humanize %}
+{% block title %}
+    نهایی کردن سبد خرید
+{% endblock %}
+
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row d-flex align-items-start justify-content-between">
+            <p class="card py-4 px-4 fw-bold fs-4" style="width: 92rem">پرداخت</p>
+            <div class="row d-flex align-items-start">
+                <div class="" style="width: 20%;">
+                    <div class="ui vertical menu">
+                        <a class="item">
+                            <p><small class="fw-bold me-3"> جمع سبد خرید</small>{{ order.get_total | intcomma }} تومان
+                            </p>
+                        </a>
+                        <a class="item">
+                            <p><small class="fw-bold me-3">هزینه ی ارسال </small> {{ price.Computing_Price | intcomma }}
+                                تومان </p>
+                        </a>
+                        <a class="item">
+                            <p><small class="fw-bold me-3">قابل پرداخت</small> {{ order.buy |intcomma }} تومان </p>
+                        </a>
+                        <a class="item">
+                            <form method="post" class="d-flex" action="">
+                                {% csrf_token %}
+                                <input type="text" name="code" class="form-control" placeholder="کد تخفیف">
+                                <button type="submit" class="btn btn_pay">اعمال</button>
+                            </form>
+                        </a>
+                        <a class="item text-light" href="{% url 'order:StartPay' order.id %}"
+                           style="background-color: #7e0b0b;text-align: center">
+                            پرداخت
+
+                        </a>
+                    </div>
+                </div>
+                <div class="d-flex flex-column justify-content-between px-4" id="information" style="width: 80%">
+                    <div class="card py-3 px-4 mb-4">
+                        <p class="fw-bold fs-5  "> انتخاب روش پرداخت</p>
+                        <div class="d-flex gap-3 flex-column mt-2">
+                            <div class="form-check  d-flex align-items-center">
+                                <input class="form-check-input me-2" type="radio" name="flexRadioDefault"
+                                       id="flexRadioDefault1" checked>
+                                <label class="form-check-label d-flex align-items-center" for="flexRadioDefault1">
+                                    <i class="fa-solid fa-credit-card fs-4 me-3"></i>
+                                    <div class="d-flex flex-column">
+                                        <span class="fs-5 mb-2">پرداخت اینترنتی</span>
+                                        <small class="text-secondary">پرداخت با کارت بانکی و درگاه آقای پرداخت </small>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="form-check mt-3 d-flex align-items-center">
+                                <input class="form-check-input  me-2" type="radio" name="flexRadioDefault"
+                                       id="flexRadioDefault2" disabled>
+                                <label class="form-check-label d-flex align-items-center" for="flexRadioDefault2">
+                                    {#                                   <a class="" >#}
+                                    <i class="fa-solid fa-wallet fs-4 me-3"></i>
+                                    {#                                   </a>#}
+                                    <div class="d-flex flex-column">
+                                        <span class="fs-5">پرداخت از کیف پول</span>
+                                        <small class="text-secondary">کسر از کیف پول </small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column justify-content-between card py-3 px-4" id="information"
+                         style="width: 100%">
+                        <div class="accordion" id="accordionExample">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#collapseOne" aria-expanded="true"
+                                            style="background-color: white;color: black"
+                                            aria-controls="collapseOne">
+                                        <p class="fw-bold fs-5"> خلاصه ی سفارش </p>
+                                    </button>
+                                </h2>
+                                <div id="collapseOne" class="accordion-collapse collapse"
+                                     data-bs-parent="#accordionExample">
+                                    <div class="accordion-body d-flex flex-row gap-3">
+                                        {% for item in order.order_item.all %}
+                                            <div class="d-flex flex-row gap-3">
+                                                {% if item.product %}
+                                                    <img src="{{ item.product.image.url }}" alt="" width="50px">
+                                                    <div class="d-flex align-items-start justify-content-center flex-column">
+                                                        <p>{{ item.product.name }}</p>
+                                                        <p> تعداد {{ item.quantity }}  </p>
+                                                    </div>
+                                                    {% else %}
+                                                     <img src="{{ item.variant.product.image.url }}" alt="" width="50px">
+                                                    <div class="d-flex align-items-start justify-content-center flex-column">
+                                                        <p>{{ item.variant.product.name }}</p>
+                                                        <p> تعداد {{ item.quantity }}  </p>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+
+
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

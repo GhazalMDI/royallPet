@@ -1,0 +1,55 @@
+* {
+    font-family: "vazir";
+    direction: rtl;
+
+}
+body{
+    background-color: red;
+}
+*{
+    color: red;
+}
+
+h1, h2, h3, h4, h5, h6, button, a, p, span, input {
+    font-family: "vazir";
+}
+
+a {
+    text-decoration: none;
+    color: black;
+    transition: all 0.3s ease-in-out;
+}
+
+a:hover {
+    color: orangered;
+}
+
+.circle {
+    border-radius: 50%;
+    height: 35px;
+    width: 35px;
+    text-align: center;
+    translate: 50%;
+}
+
+.items {
+    transition: all 0.3s ease-in-out;
+    /*border-top:1px solid orangered ;*/
+    /*border-bottom: 1px solid orangered;*/
+}
+
+.items:hover {
+    background-color: #dee2e6;
+}
+
+.btn_pay {
+    background-color: darkred;
+    color: #ffffff;
+    border: 0;
+    outline: 0;
+}
+
+.btn-dark {
+    background-color: darkred;
+}
+

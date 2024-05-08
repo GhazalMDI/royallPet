@@ -1,0 +1,51 @@
+*{
+ font-family: 'vazir';
+}
+
+h1,h5,h4,h3,h2,p,a{
+    font-family: 'vazir';
+}
+.circle{
+    border-radius: 50%;
+    height: 35px;
+    width: 35px;
+    text-align: center;
+    padding-top: 4px;
+    translate: 50%;
+    background-color: rgba(255, 164, 0, 0.56);
+}
+i{
+    cursor: pointer;
+}
+
+.form-control1  *{
+        display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #dee2e6;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: #212529;
+    background-clip: padding-box;
+    border: 1px solid #495057;
+    border-radius: 0.375rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.item:hover{
+    color: orange;
+}
+.btn-cart{
+    border:1px solid gainsboro;
+}
+   #map {
+            height: 500px;
+        }
+
+        .leaflet-div-icon {
+            border: 0;
+            background-color: transparent;
+        }

@@ -1,0 +1,1190 @@
+{% extends '_base.html' %}
+{% load static %}
+{% load humanize %}
+{% load jformat %}
+
+{% block title %}حساب کاربری{% endblock %}
+<link rel="stylesheet" href=" {% static 'accounts/css/style.css' %}">
+{% block css %}
+    <style>
+        #map {
+            height: 500px;
+        }
+
+        .leaflet-div-icon {
+            border: 0;
+            background-color: transparent;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid d-flex  align-items-top gap-2 flex-lg-row flex-md-row flex-column" style="height:80vh">
+        <div>
+            {#        d-none d-lg-flex#}
+            <div class="ui vertical menu  ">
+                <div class="item">
+                    <div class="header d-flex align-items-center  px-2 justify-content-center">
+                        <div class="circle bg-dark text-light pt-2">{{ request.user.firstwordname }}</div>
+                        <p style="cursor: pointer" onclick="showInfo()"> {{ request.user.full_name }}</p>
+                    </div>
+                </div>
+                {#                {% if compare %}#}
+                <div class="item d-flex align-items-center justify-content-between">
+                    <div class="header d-flex gap-3">
+                        <i class="fa-solid fa-code-compare"></i>
+                        <a href="{% url 'Products:CompareShow' %}" style="cursor: pointer" class="text-dark">مقایسه
+                            محصولات </a>
+                    </div>
+                    <i class="fa fa-angle-left ms-auto" aria-hidden="true"></i>
+                </div>
+                {#                {% endif %}#}
+                <div class="item d-flex align-items-center justify-content-between">
+                    <div class="header d-flex gap-3">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <p style="cursor: pointer" class="text-dark" onclick="showBuy()">خریدها</p>
+                    </div>
+                    <i class="fa fa-angle-left ms-auto" aria-hidden="true"></i>
+                </div>
+                <div class="item d-flex align-items-center justify-content-between">
+                    <div class="header d-flex gap-3">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                        <p style="cursor: pointer" class="text-dark" onclick="showAddress()">آدرس ها </p>
+                    </div>
+                    <i class="fa fa-angle-left ms-auto" aria-hidden="true"></i>
+                </div>
+                <div class="item d-flex align-items-center justify-content-between">
+                    <div class="header d-flex gap-3">
+                        <i class="fa-solid fa-comment"></i>
+                        <p style="cursor: pointer" class="text-dark" onclick="showComments()">دیدگاه ها</p>
+                    </div>
+                    <i class="fa fa-angle-left ms-auto" aria-hidden="true"></i>
+                </div>
+                <div class="item d-flex align-items-center justify-content-between">
+                    <div class="header d-flex gap-3">
+                        <i class="fa fa-sign-out" aria-hidden="true"></i>
+                        <a href="{% url 'Accounts:Logout' %}" class="text-dark">خروج</a>
+                    </div>
+                    <i class="fa fa-angle-left ms-auto" aria-hidden="true"></i>
+                </div>
+
+            </div>
+            {% if  cart.get_total_price or  variant_cart.get_total_price %}
+                <div class="ui vertical menu " style="display: none" id="success_cart">
+                    <a class="item">
+                        <p class="fw-bold mx-2 ">مجموع کل خرید </p><span
+                            id="total-price">{% if not variant_cart.get_total_price %}
+                        {{ cart.get_total_price| intcomma }}{% elif not cart.get_total_price %}
+                        {{ variant_cart.get_total_price|intcomma }}{% else %}{{ cart.get_total_price | add:variant_cart.get_total_price| intcomma }} {% endif %}</span>
+                        {#                        <span id="total-price-online"></span>#}
+                        تومان
+                        <br><br>
+                        {#                        {% if cart.get_total_profit %}#}
+                        <p class="fw-bold mx-2 ">سود شما از این خرید </p>
+                        <span id="profit"> {{ cart.get_total_profit | add:variant_cart.get_total_profit| intcomma }}</span>
+                        تومان
+                        <br>
+                        <a href="{% url 'order:shopping' %}" class="btn btn-dark mt-5" style="font-family: vazir">تکمیل
+                            سفارش</a>
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        <div style="display: none;width: 80vw;height: 80vh" class=" " id="commentsContainer">
+            <div class="ui top attached tabular menu">
+                <a class="item active" data-tab="first"> نظرات در انتظار تایید</a>
+                <a class="item" data-tab="second"> نظرات ثبت شده</a>
+            </div>
+            <div style="height: 70vh" class="ui bottom attached tab segment active text-dark" data-tab="first">
+                {% for comment in comments %}
+                    <div class="d-flex border-bottom py-3 align-items-start justify-content-between">
+                        <div class="d-flex align-items-start gap-1" style="width: 150px">
+                            {#                            <i class="fa fa-comment"></i>#}
+                            <p>{{ comment.body | safe }}</p>
+                        </div>
+                        <a href="{% url 'Products:ProductDetails' comment.product.id comment.product.slug %}">{{ comment.product.name }}</a>
+                        <i class="fa-solid fa-hourglass-start"></i>
+                    </div>
+                {% endfor %}
+            </div>
+            <div style="height: 70vh" class="ui bottom attached tab segment" data-tab="second">
+                {% for com in accepted_comment %}
+                    <div class="d-flex border-bottom py-3  text-dark align-items-start justify-content-between">
+                        <div class="d-flex align-items-start gap-1" style="width: 150px">
+                            <p>{{ com.body | safe }}</p>
+                        </div>
+                        <a href="{% url 'Products:ProductDetails' com.product.id com.product.slug %}">{{ com.product.name }}</a>
+                        <i class="fa-solid fa-check text-success"></i>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="" id="address" style="display: none;width: 80vw">
+            <div class="d-flex justify-content-between ">
+                <div class="active item">
+                    <p class="fw-bold fs-3">آدرس ها</p>
+                </div>
+                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModalToggle">اضافه
+                    کردن
+                    آدرس
+                </button>
+            </div>
+
+            <div class="ui bottom attached active tab segment" style="height: 80vh;overflow-y: scroll">
+                <div class="d-flex align-items-start flex-column gap-4">
+                    {% for address in user_address %}
+                        <div id="address-{{ address.id }}" class="d-flex flex-row-reverse justify-content-between"
+                             style="width: 100%">
+                            <div class="dropdown">
+                                <button class="border-0 outline-0 " style="background-color: transparent" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-bars"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <button class="dropdown-item"
+                                                onclick="removeAddress('{{ address.id }}', '{% url 'Accounts:DeleteAddress' %}')">
+                                            حذف
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'Accounts:editAddress' address.id %}">ویرایش</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="d-flex align-items-start flex-column justify-content-start gap-3  text-black">
+                                <div class="d-flex align-items-center text-black gap-3">
+                                    <i class="fa-solid fa-map-location-dot"></i>
+                                    <p class="fw-bold">{{ address.formatted_address }}</p>
+                                </div>
+                                <div>
+                                    <div class="d-flex ">
+                                        {#                                    <i class="fa-regular fa-map-location"></i>#}
+                                        <i style="font-size: 12px;" class=" mx-2 fa-solid fa-city"></i>
+                                        <p>{{ address.county }}</p></div>
+                                    <div class="d-flex ">
+                                        {#                                    <i class="fa-regular fa-map-location"></i>#}
+                                        <i style="font-size: 12px;" class=" mx-2 fa-solid fa-house-user"></i>
+                                        <p>{{ address.House_number }}</p></div>
+                                    <div class="d-flex ">
+                                        <i style="font-size: 12px;" class="mx-2 fa-solid fa-building"></i>
+                                        <p>{{ address.floor }}</p></div>
+
+                                    <div class="d-flex ">
+                                        <i style="font-size: 12px;" class=" mx-2 fa-solid fa-signs-post"></i>
+                                        <p>{{ address.postal_code }}</p></div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div id="informationShow" style="display: block;width: 80vw" class="">
+            <div class="card p-4">
+                <div class="">
+                    <p class="fw-bold my-3 border-bottom py-2 fs-4">ویرایش مشخصات من</p>
+                    <div class="d-flex gap-3 justify-content-between align-items-top">
+                        <p>شماره موبایل</p>
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                            <p class="fw-bold">{{ request.user.phone_number }}</p>
+
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 justify-content-between align-items-top border-top ">
+                        <p>نام و نام خانوادگی</p>
+                        <div class="d-flex align-items-center justify-content-center gap-2">
+                            <p class="fw-bold">{{ request.user.full_name }}</p>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 justify-content-between align-items-top border-top">
+                    <p> تاریخ تولد</p>
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                        <p class="fw-bold">{{ request.user.birthday }}</p>
+                    </div>
+
+                </div>
+
+                <div class="d-flex gap-3 justify-content-between align-items-top border-top">
+                    <p>ایمیل</p>
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                        <p class="fw-bold">
+                            {% if request.user.email %}{{ request.user.email }} {% else %}---{% endif %}</p>
+                    </div>
+                </div>
+                <input type="submit" style="width: 150px" value="ویرایش اطلاعات" class="btn btn-dark"
+                       onclick="showedit()">
+            </div>
+        </div>
+        <div id="edit" style="display: none">
+            <div class="p-1 rounded d-flex align-items-center justify-content-center border"
+                 style="height: 80vh;width: 25vw">
+                <form method="post" action="" style="width: 20vw">
+                    {% csrf_token %}
+                    {{ form_information }}
+                    <input type="submit" class="btn btn-dark mt-3" value="ذخیره ی اطلاعات">
+                </form>
+            </div>
+        </div>
+        <div class="container" id="cartShow" style="display: none;width: 80vw;height: 80vh">
+            <div id="context2">
+                <div class="ui secondary menu">
+                    <a class="item active" data-tab="fourth">سبد خرید</a>
+                    <a class="item" data-tab="fifth">تاریخچه ی خریدها</a>
+                    <a class="item" data-tab="six"> محصولات مورد علاقه</a>
+                </div>
+                <div class="ui active tab segment" style="width: 80vw;height: 80vh;overflow-y: scroll"
+                     data-tab="fourth">
+                    <div class="container-fluid" style="">
+                        <p class="fs-6 fw-bold">سبد خرید شما</p>
+                        <small class="cart-len">  {{ cart_len }} </small> <small> کالا</small>
+                        <div class="row d-flex flex-column ">
+                            {% for c in cart %}
+                                <div id="product-{{ c.id }}"
+                                     class=" col-12 border-bottom gap-3 py-2 mb-5 flex-row d-flex align-items-start justify-content-between product_data">
+                                    <div class="d-flex  flex-column align-items-center">
+                                        <img src="{{ c.image }}" width="120px" alt="">
+                                        <div class="d-flex align-items-center mt-2 flex-row gap-2 btn-cart border border border-secondary rounded p-2 mb-2 border-opacity-50">
+                                            {% if c.quantity < 2 %}
+                                                <i id="remove-icon-{{ c.id }}" class="fa-solid fa-trash text-danger"
+                                                   onclick="RemoveProductFunc('{{ c.id }}','{% url 'cart:RemoveCartProduct' %}')"></i>
+                                            {% else %}
+                                                <i id="minus-icon-{{ c.id }}" class="fa-solid fa-minus text-danger"
+                                                   onclick="changeQuantityFunc('{{ c.id }}',  '{% url 'cart:CartOneDelete' %}')"></i>
+                                            {% endif %}
+                                            <span id="quantity-{{ c.id }}" style="" type="text"
+                                                  value="">{{ c.quantity }}</span>
+                                            <i class="fa-solid fa-plus text-danger"
+                                               onclick="addToCartFunc('{{ c.id }}','{% url 'cart:CartOneAdd' %}')"></i>
+
+                                        </div>
+                                        <p id="total-{{ c.id }}">  {{ c.total | intcomma }} تومان </p>
+
+
+                                    </div>
+                                    <div class="d-flex flex-column col-6 align-items-start justify-content-center">
+                                        <p class="fw-bold">{{ c.name }}</p>
+                                        <p>{{ c.price | intcomma }} تومان </p>
+                                        {% if c.discount > 0 %}
+                                            <p>{{ c.discount }}%</p>
+                                            <p> بعد از تخفیف {{ c.after_discount | intcomma }}</p>
+                                            <p> سود شما از خرید محصول {{ c.total_fit |intcomma }} تومان </p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="border-0 outline-0" style="background-color: transparent"
+                                                type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <button onclick="RemoveProductFunc('{{ c.id }}','{% url 'cart:RemoveCartProduct' %}')"
+                                                        class="dropdown-item">حذف
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="row d-flex flex-column ">
+                            {% for v in variant_cart %}
+                                <div id="product-var-{{ v.id }}"
+                                     class=" col-12 border-bottom gap-3 py-2 mb-5 flex-row d-flex align-items-start justify-content-between product_data">
+                                    <div class="d-flex  flex-column align-items-center">
+                                        <img src="{{ v.image }}" width="120px" alt="">
+                                        <div class="d-flex align-items-center mt-2 flex-row gap-2 btn-cart border border border-secondary rounded p-2 mb-2 border-opacity-50">
+                                            {% if v.quantity < 2 %}
+                                                <i id="remove-var-icon-{{ v.id }}" class="fa-solid fa-trash text-danger"
+                                                   onclick="RemoveVarProductFunc('{{ c.id }}','{% url 'cart:RemoveCartVarProduct' %}')"></i>
+                                            {% else %}
+                                                <i id="minus-icon-{{ c.id }}" class="fa-solid fa-minus text-danger"
+                                                   onclick="changeVarQuantityFunc('{{ c.id }}',  '{% url 'cart:deleteVar' %}')"></i>
+                                            {% endif %}
+
+                                            <span id="quantity-var-{{ v.id }}" style="" type="text"
+                                                  value="">{{ v.quantity }}</span>
+                                            {#                                            <a href="{% url 'cart:VarCartOneAdd' v.id %}">#}
+                                            <i class="fa-solid fa-plus text-danger"
+                                               onclick="changeQuantityFunc('{{ c.id }}','{% url 'cart:VarCartOneAdd' %}')"></i>
+                                            {#                                            </a>#}
+                                        </div>
+                                        <p>سایز {{ v.size }}</p>
+                                        <p>  {{ v.total | intcomma }} تومان </p>
+                                    </div>
+                                    <div class="d-flex flex-column col-6 align-items-start justify-content-center">
+                                        <p class="fw-bold">{{ v.name }}</p>
+                                        <p>{{ v.price | intcomma }} تومان </p>
+                                        {% if v.discount != 0 %}
+                                            <p>{{ v.discount }}%</p>
+                                            <p> بعد از تخفیف {{ v.after_discount | intcomma }}</p>
+                                            <p> سود شما از خرید محصول {{ v.total_fit |intcomma }} تومان </p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="border-0 outline-0" style="background-color: transparent"
+                                                type="button"
+                                                data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <button onclick="RemoveVarProductFunc('{{ v.id }}','{% url 'cart:RemoveCartVarProduct' %}')"
+                                                        class="dropdown-item">حذف
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            {% endfor %}
+
+                        </div>
+
+
+                    </div>
+                </div>
+                <div class="ui tab segment" style="width: 80vw;overflow-y: scroll;height: 80vh" data-tab="fifth">
+                    <div style="" class="">
+                        {% if order_history %}
+                            {% for h in order_history %}
+                                <div class="accordion accordion-flush" id="accordionFlushExample">
+                                    <div class="accordion-item">
+                                        <div class="accordion-header" id="flush-headingOne">
+                                            <div class="accordion-button collapsed d-flex align-items-center"
+                                                 type="button"
+                                                 data-bs-toggle="collapse"
+                                                 data-bs-target="#flush-collapseOne-{{ h.id }}"
+                                                 aria-expanded="false" aria-controls="flush-collapseOne-{{ h.id }}"
+                                                 style="background-color: white">
+                                                {#                                            drfvrd#}
+                                                <ul class=" d-flex align-items-center justify-content-center gap-3">
+                                                    <li>
+                                                        <span><small>تاریخ سفارش </small>{{ h.created | jformat:'%Y/%m/%d' }}</span>
+                                                    </li>
+                                                    <li>
+                                                        <small>مبلغ</small><span>  {{ h.buy | intcomma }} تومان </span>
+                                                    </li>
+                                                    {% if h.profit %}
+                                                        <li>
+                                                            <small>تخفیف</small><span>{{ h.profit |intcomma }}  </span>
+                                                        </li>{% endif %}
+                                                </ul>
+                                            </div>
+                                            <div id="flush-collapseOne-{{ h.id }}" class="accordion-collapse collapse"
+                                                 aria-labelledby="flush-headingOne"
+                                                 data-bs-parent="#accordionFlushExample-">
+                                                <div class="accordion-body">
+                                                    {% for item in h.order_item.all %}
+                                                        <div class="d-flex flex-row align-items-center justify-content-between">
+                                                            <div class="col-2"><p>{{ forloop.counter }}</p></div>
+                                                            <div class="col-2">
+                                                                {% if item.product %}
+                                                                    <a href="{% url 'Products:ProductDetails' item.product.id item.product.slug %}"><img
+                                                                            src="{{ item.product.image.url }}"
+                                                                            alt=""
+                                                                            width="50px"></a></div>
+                                                                    <div class="col-2"><span
+                                                                            class="fw-bold">{{ item.product.name }}</span>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <span>قیمت محصول {{ item.price | intcomma }} تومان  </span>
+                                                                    </div>
+                                                                    <div class="col-2">
+                                                                        <span> تعداد {{ item.quantity }}  </span>
+                                                                    </div>
+                                                                {% else %}
+                                                                    <a href="{% url 'Products:ProductDetails' item.variant.product.id item.variant.product.slug %}"><img
+                                                                            src="{{ item.variant.product.image.url }}"
+                                                                            alt=""
+                                                                            width="50px"></a></div>
+                                                                    <div class="col-2"><span
+                                                                            class="fw-bold">{{ item.variant.product.name }}</span>
+                                                                    </div>
+                                                                    <div class="col-3">
+                                                                        <span>قیمت محصول {{ item.variant.price | intcomma }} تومان  </span>
+                                                                    </div>
+
+                                                                    <div class="col-2">
+                                                                        <span> تعداد {{ item.quantity }}  </span>
+                                                                    </div>
+
+                                                                    <div class="">
+                                                                        <span> {{ item.variant.size.name }}  </span>
+                                                                    </div>
+                                                                {% endif %}
+                                                        </div>
+                                                    {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p style="height: 25vh">تاریخچه ی سفارش شما خالی است </p>
+                        {% endif %}
+                </div>
+            </div>
+            <div class="ui tab segment" style="width: 80vw;overflow-y: scroll;height: 80vh" data-tab="six">
+                <div class="row d-flex align-items-center">
+                    {% if list %}
+                        {% for f in list %}
+                            {% if f.product.id %}
+                                <div class="col-6 py-2 border-bottom mb-5 flex-column d-flex align-items-center justify-content-between "
+                                     id="product-{{ f.product.id }}">
+                                    <p class="fw-bold">{{ f.product.name }}</p>
+                                    <img src="{{ f.product.image.url }}" width="120px" alt="">
+                                    <p>{{ f.product.price | intcomma }} تومان </p>
+                                    <div class="d-flex align-items-center">
+                                        <button onclick="addToCartFunc('{{ f.product.slug }}', '{% url 'cart:CartAdd' %}')"
+                                                type="submit" class="btn btn-dark"> اضافه به
+                                            سبد
+                                        </button>
+
+                                        <button onclick="removeLikeFunc('{{ f.product.id }}','{% url 'cart:DeleteFavourite' %}')"
+                                                class="btn btn-outline-danger">
+                                            <i class="fa-solid fa-trash"></i> حذف از لیست
+                                        </button>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="col-6 py-2 border-bottom mb-5 flex-column d-flex align-items-center justify-content-between "
+                                     id="var-product-{{ f.var_product.id }}">
+                                    <p class="fw-bold">{{ f.var_product.product.name }}</p>
+                                    <p class="fw-bold">{{ f.var_product.size.name }}</p>
+                                    <img src="{{ f.var_product.product.image.url }}" width="120px" alt="">
+                                    <p>{{ f.var_product.price | intcomma }} تومان </p>
+                                    <div class="d-flex align-items-center">
+                                        <button onclick="addToVarCartFunc('{{ f.var_product.id }}', '{% url 'cart:AddToVariantLikeCartView' %}')"
+                                                type="submit" class="btn btn-dark"> اضافه به
+                                            سبد
+                                        </button>
+                                        <button onclick="removeVarLikeFunc('{{ f.var_product.id }}','{% url 'cart:DeleteVarFavourite' %}')"
+                                                class="btn btn-outline-danger">
+                                            <i class="fa-solid fa-trash"></i> حذف از لیست
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p style="height: 25vh">شما هیج محصولی به بخش مورد علاقه مندی ها اضافه نکرده اید</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel"
+         tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-xl">
+                <div style="width: 50rem;" class="modal-content">
+                    <div class="modal-header">
+                        {#                        <h1 class="modal-title fs-5" id="exampleModalLabel">آدرس</h1>#}
+                        <small>موقعیت مکانی خود را انتخاب نمایید</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="d-flex align-items-center justify-content-center flex-column">
+                            <div id="map" style="height:400px;width:100%">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <form method="get" novalidate action="{% url 'Accounts:address' %}">
+                            <button id="submitAddress" type="submit" class="btn btn-danger"
+                                    data-bs-target="#exampleModalToggle2"
+                                    data-bs-toggle="modal"
+                                    {#                           data-bs-dismiss="modal"#}
+                                    onclick="showDetailAddress()">تایید و ادامه
+                            </button>
+                            {#                               data-bs-target="#exampleModalToggle2" data-bs-toggle="modal"          </form>#}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="exampleModalToggle2" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2"
+         tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalToggleLabel2">جزئیات آدرس</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" dir="rtl">
+                    <form method="post" id="addressForm" class="" style="text-align: right"
+                          novalidate
+                          action="{% url 'Accounts:address' %}">
+                        {% csrf_token %}
+                        {#                        {{ DetailsAddressForm.as_p }}#}
+                        <div class="d-flex flex-column align-items-start col-12">
+                            <label for="formatted_address">نشانی پستی*</label>
+                            <input placeholder="" id="formatted_address" class="form-control" name="formatted_address"
+                                   type="text" value="{{ request.session.user_address.formatted_address }} ">
+
+                        </div>
+                        <div class="d-flex flex-column align-items-start col-12">
+                            <label for="state">استان*</label>
+                            <input class="form-control" id="state" name="state" type="text"
+                                   value="{{ request.session.user_address.state }} ">
+                        </div>
+                        <div class="d-flex flex-column align-items-start col-12">
+                            <label for="county">شهرستان*</label>
+                            <input class="form-control" id="county" name="county" type="text"
+                                   value="{{ request.session.user_address.county }}">
+                        </div>
+                        <div class="d-flex flex-column align-items-start col-12">
+                            <label for="village">روستا</label>
+                            <input class="form-control" id="village" name="village" type="text"
+                                   value="{% if village == None %} {% else %}{{ request.session.user_address.village }}{% endif %}">
+                        </div>
+                        <div class="d-flex flex-column align-items-start col-12">
+                            <label for="floor">طبقه*</label>
+                            <input class="form-control" id="floor" name="floor" type="text" value="">
+                        </div>
+                        <div class="d-flex flex-column align-items-start col-12">
+                            <label for="House_number">پلاک*</label>
+                            <input class="form-control" id="House_number" name="House_number" type="text"
+                                   value=" {{ request.session.user_address.House_number }}">
+                        </div>
+                        <div class="d-flex flex-column align-items-start col-12">
+                            <label for="unit">واحد</label>
+                            <input class="form-control" id="unit" name="unit" type="text"
+                                   value="{{ request.session.user_address.unit }}">
+                        </div>
+                        <div class="d-flex flex-column align-items-start col-12">
+                            <label for="postal_code">کد پستی*</label>
+                            <input class="form-control" id="postal_code" name="postal_code" type="text" value="">
+                        </div>
+                        <button class="btn btn-dark" type="submit">ثبت آدرس</button>
+
+                        {#                                            {{ DetailsAddressForm.as_p }}#}
+                    </form>
+                </div>
+                {#      <div class="modal-footer">#}
+                {#        <button class="btn btn-primary" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">Back to first</button>#}
+                {#      </div>#}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    <script>
+        function addToVarCartFunc(c_id, url) {
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: {
+                    'c_id': c_id,
+                },
+                success: function (response) {
+                    if (response === 'success') {
+                        console.log('با موفقیت به سبد خرید اضافه شد')
+
+                    } else {
+                        console.log('خطایی رخ داده است: ' + response);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('خطایی رخ داده است: ' + error);
+                }
+            })
+
+        }
+
+        function changeQuantityFunc(c_id, url) {
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: {
+                    'c_id': c_id,
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $('.cart-len').text(response.cart_length);
+                        $('#total-price').text(response.cart_data.total_price);
+                        $('#profit').text(response.cart_data.profit);
+                        $('#total').text(response.cart_data.total);
+                        var quantity = response.cart_data.products.find(item => item.id === parseInt(c_id)).quantity;
+                        $("#quantity-" + c_id).text(quantity);
+                        if (quantity === 1) {
+                            $("#product-" + c_id).remove();
+                        }
+                    } else {
+                        console.log('خطایی رخ داده است: ' + response.error);
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    console.error('خطایی رخ داده است: ' + error);
+                }
+            });
+        }
+
+        function changeVarQuantityFunc(c_id, url) {
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: {
+                    'c_id': c_id,
+                },
+                success: function (response) {
+                    if (response.success) {
+                        $('.cart-len').text(response.cart_length);
+                        $('#total-price').text(response.cart_data.total_price);
+                        $('#profit').text(response.cart_data.profit);
+                        var quantity = response.cart_data.products.find(item => item.id === parseInt(c_id)).quantity;
+                        $("#quantity-var-" + c_id).text(quantity);
+                        if (quantity === 1) {
+                            $("#product-" + c_id).remove();
+                        }
+                    } else {
+                        console.log('خطایی رخ داده است: ' + response.error);
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    console.error('خطایی رخ داده است: ' + error);
+                }
+            });
+        }
+
+        function RemoveProductFunc(c_id, url) {
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: {
+                    'c_id': c_id
+                },
+                success: function (response) {
+                    if (response.products.length > 0) {
+                        $("#product-" + c_id).remove();
+                        $('.cart-len').text(response.cart_length);
+                        $('#total-price').text(response.total_price);
+                        $('#profit').text(response.profit);
+
+                        console.log('با موفقیت حذف شد')
+                    } else {
+                        console.log('خطایی رخ داده است: ' + response.error);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('خطایی رخ داده است: ' + error);
+                }
+            });
+        }
+
+        function RemoveVarProductFunc(c_id, url) {
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: {
+                    'c_id': c_id
+                },
+                success: function (response) {
+                    if (response.products.length > 0) {
+                        $("#product-var-" + c_id).remove();
+                        $('.cart-len').text(response.cart_length);
+                        $('#total-price').text(response.total_price);
+                        $('#profit').text(response.profit);
+                        console.log('با موفقیت حذف شد')
+                    } else {
+                        console.log('خطایی رخ داده است: ' + response.error);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('خطایی رخ داده است: ' + error);
+                }
+            });
+        }
+
+        function removeAddress(address_id, url) {
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: {
+                    'address_id': address_id,
+                },
+                success: function (response) {
+                    if (response === 'success') {
+                        $("#address-" + address_id).remove();
+                        console.log('با موفقیت حذف شد')
+                    } else {
+                        console.log('خطایی رخ داده است: ' + response);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('خطایی رخ داده است: ' + error);
+                }
+            })
+        }
+
+        function removeVarLikeFunc(p_id, url) {
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: {
+                    'p_id': p_id,
+                },
+                success: function (response) {
+                    if (response === 'success') {
+                        $("#var-product-" + p_id).remove();
+
+                        console.log('با موفقیت حذف اضافه شد')
+                    } else {
+                        console.log('خطایی رخ داده است: ' + response);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('خطایی رخ داده است: ' + error);
+                }
+
+            })
+        }
+
+        function removeLikeFunc(p_id, url) {
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: {
+                    'p_id': p_id,
+                },
+                success: function (response) {
+                    if (response === 'success') {
+                        $("#product-" + p_id).remove();
+
+                        console.log('با موفقیت حذف اضافه شد')
+                    } else {
+                        console.log('خطایی رخ داده است: ' + response);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('خطایی رخ داده است: ' + error);
+                }
+
+            })
+
+        }
+
+        {#function addToCartFunc(p_id, url) {#}
+        {#    $.ajax({#}
+        {#        url: url,#}
+        {#        type: 'get',#}
+        {#        data: {#}
+        {#            'p_id': p_id,#}
+        {#'csrfmiddlewaretoken': '{{ csrf_token }}'#}
+        {#        },#}
+        {#        success: function (response) {#}
+        {#            if (response === 'success') {#}
+        {#                console.log('با موفقیت به سبد خرید اضافه شد')#}
+        {#                var quantity = response.cart_data.products.find(item => item.id === parseInt(p_id)).quantity;#}
+        {#                $("#quantity-" + p_id).text(quantity);#}
+        {##}
+        {#            } else {#}
+        {#                console.log('خطایی رخ داده است: ' + response);#}
+        {#            }#}
+        {#        },#}
+        {#        error: function (xhr, status, error) {#}
+        {#            console.error('خطایی رخ داده است: ' + error);#}
+        {#        }#}
+        {#    })#}
+
+
+        function addToCartFunc(p_id, url) {
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: {
+                    'p_id': p_id,
+                },
+                success: function (response) {
+                    if (response.products.length > 0) {
+                        $('#total-price').text(response.total_price);
+                        $('#profit').text(response.profit);
+                        $('#total-' + p_id).text(response.cart_data.total);
+                        $("#quantity-" + p_id).text(quantity);
+                    } else {
+                        console.log('خطایی رخ داده است: ' + response.error_message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('خطایی رخ داده است: ' + error);
+                }
+            });
+        }
+
+
+        $(document).ready(function () {
+            $("#submitAddress").click(function (e) {
+                e.preventDefault();
+                $.ajax({
+                    type: "GET",
+                    url: "{% url 'Accounts:address' %}",
+                    data: $("#addressForm").serialize(),
+                    success: function (response) {
+                        $('#exampleModalToggle').modal('hide');
+                        $('#exampleModalToggle2').modal('show');
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        console.log(textStatus)
+                    }
+                });
+            });
+
+
+        });
+
+        function AddLike(p_slug, url) {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                    'p_slug': p_slug
+                },
+                success: function (data) {
+
+                }
+            })
+
+        }
+
+
+        $('.add-to-cart-form').on('submit', function (event) {
+            event.preventDefault();
+            var form = $(this);
+            $.ajax({
+                type: form.attr('method'),
+                url: form.attr('action'),
+                data: form.serialize(),
+                dataType: 'json',
+                success: function (data) {
+                    if (data.success) {
+                        window.location.href = data.redirect_url;
+                    } else {
+                        alert(data.error_message);
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert('خطا در برقراری ارتباط با سرور!');
+                }
+            });
+        });
+
+        var map = L.map('map').setView([35.70072333, 51.38072233], 20);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        var redIcon = L.divIcon({
+            className: 'leaflet-div-icon',
+            html: '<i class=" fs-1 fa-solid fa-location-dot"></i>',
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+        var marker;
+        map.on('click', function (e) {
+            if (marker) {
+                map.removeLayer(marker)
+            }
+            let homeUrl = ''
+            marker = L.marker(e.latlng, {icon: redIcon}).addTo(map)
+            let lat = e.latlng.lat;
+            let lng = e.latlng.lng;
+            map.setView(e.latlng, 15);
+            $.ajax({
+                url: homeUrl,
+                type: 'get',
+                headers: {'X-CSRFToken': "{{ csrf_token }}"},
+                data: {
+                    'lat': lat,
+                    'lng': lng
+                },
+                success: function (data) {
+
+                }
+            });
+        });
+        {#navigator.geolocation.getCurrentPosition(function (position) {#}
+        {#    let lat = position.coords.latitude;#}
+        {#    let lng = position.coords.longitude;#}
+        {##}
+        {#    // استفاده از مختصات در آجاکس#}
+        {#    $.ajax({#}
+        {#        url: homeUrl,#}
+        {#        type: 'get',#}
+        {#        data: {#}
+        {#            'lat': lat,#}
+        {#            'lng': lng#}
+        {#        },#}
+        {#        success: function (data) {#}
+        {#            console.log(data);#}
+        {#        }#}
+        {#    });#}
+
+        $('.tabular.menu .item').tab();
+        const informationShow = document.getElementById('informationShow')
+        const cartShow = document.getElementById('cartShow')
+        const edit = document.getElementById('edit')
+        const success_cart = document.getElementById('success_cart')
+        const address = document.getElementById('address')
+        const comments = document.getElementById('commentsContainer')
+        const edit_address = document.getElementById('edit_address')
+
+        function showDetailAddress() {
+            if (edit_address.style.display === 'none') {
+                edit_address.style.display = 'block';
+            }
+        }
+
+        function showInfo() {
+            if (informationShow.style.display === 'none') {
+                informationShow.style.display = 'block';
+                address.style.display = 'none'
+                edit.style.display = 'none'
+                cartShow.style.display = 'none'
+                comments.style.display = 'none'
+                success_cart.style.display = 'none'
+                informationShow.style.width = '80vw';
+                edit_address.style.display = 'none';
+                if (edit.style.display === 'block' && cartShow.style.display === 'block') {
+                    edit.style.display = 'none'
+                    address.style.display = 'none'
+                    comments.style.display = 'none'
+                    edit_address.style.display = 'none';
+
+                }
+                if (comments.style.display === 'block') {
+                    comments.style.display = 'none'
+                    informationShow.style.display = 'block'
+                    edit_address.style.display = 'none';
+
+                }
+
+            } else {
+                informationShow.style.display = 'none';
+                address.style.display = 'none'
+                comments.style.display = 'none'
+                edit_address.style.display = 'none';
+
+
+            }
+        }
+
+
+        function showBuy() {
+            if (cartShow.style.display === 'none') {
+                informationShow.style.display = 'none'
+                cartShow.style.display = 'block'
+                success_cart.style.display = 'flex'
+                comments.style.display = 'none'
+                address.style.display = 'none'
+                edit.style.display = 'none'
+                success_cart.style.width = '100%';
+                cartShow.style.width = '80vw';
+                edit_address.style.display = 'none';
+
+
+            }
+            if (edit.style.display === 'block') {
+                edit.style.display = 'none'
+                address.style.display = 'none'
+                {#address.style.display = 'none'#}
+                cartShow.style.display = 'block'
+                cartShow.style.width = '80vw';
+                comments.style.display = 'none'
+                edit_address.style.display = 'none';
+
+
+            }
+            if (address.style.display === 'block') {
+                address.style.display = 'none'
+                cartShow.style.display = 'block'
+                edit_address.style.display = 'none';
+
+            }
+            if (comments.style.display === 'block') {
+                comments.style.display = 'none'
+                cartShow.style.display = 'block'
+                edit_address.style.display = 'none';
+
+
+            }
+
+        }
+
+        function showedit() {
+            if (edit.style.display === 'none') {
+                edit.style.display = 'block'
+                edit_address.style.display = 'none';
+
+            }
+        }
+
+        function showAddress() {
+            if (address.style.display === 'none') {
+                informationShow.style.display = 'none'
+                cartShow.style.display = 'none'
+                address.style.display = 'block'
+                success_cart.style.display = 'none';
+                edit.style.display = 'none'
+                address.style.width = '80%';
+                comments.style.display = 'none'
+                edit_address.style.display = 'block';
+                {#edit_address.style.display = 'none';#}
+
+
+            }
+            if (comments.style.display === 'block') {
+                comments.style.display = 'none'
+                address.style.display = 'block'
+                edit_address.style.display = 'none';
+
+            }
+
+            if (cartShow.style.display === 'block') {
+                cartShow.style.display = 'none'
+                address.style.display = 'block'
+                edit_address.style.display = 'none';
+
+            }
+
+            {#if (address.style.display === 'block') {#}
+            {#    address.style.display = 'none'#}
+            {#    informationShow.style.display = 'block'#}
+            {#cartShow.style.display = 'none'#}
+            {#cartShow.style.width = '75%';#}
+
+        }
+
+        function showComments() {
+            if (comments.style.display === 'none') {
+                comments.style.display = 'block'
+                informationShow.style.display = 'none'
+            }
+            if (address.style.display === 'block') {
+                address.style.display = 'none'
+                comments.style.display = 'block'
+            }
+            if (cartShow.style.display === 'block') {
+                cartShow.style.display = 'none'
+                comments.style.display = 'block'
+            }
+        }
+
+        $('#context1 .menu .item')
+            .tab({
+                context: $('#context1')
+            })
+        ;
+        $('#context2 .menu .item')
+            .tab({
+                // special keyword works same as above
+                context: 'parent'
+            })
+        ;
+        jalaliDatepicker.startWatch({
+            minDate: "attr",
+            maxDate: "attr"
+        });
+
+        $('.menu .item')
+            .tab();
+
+
+    </script>
+
+{% endblock %}
+
+{#    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"#}
+{#         aria-labelledby="staticBackdropLabel" aria-hidden="true">#}
+{#        <div class="modal-dialog">#}
+{#            <div class="modal-content">#}
+{#                <div class="modal-header">#}
+{#                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Modal title</h1>#}
+{#                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>#}
+{#                </div>#}
+{#                <div class="modal-body">#}
+{#                    <form method="post" id="addressForm" class="col-12" novalidate#}
+{#                          action="{% url 'Accounts:address' %}">#}
+{#                        {% csrf_token %}#}
+{#                        <label for="formatted_address">نشانی پستی*</label>#}
+{#                        <input placeholder="" id="formatted_address" class="form-control" name="formatted_address"#}
+{#                               type="text"#}
+{#                               value="{{ form.formatted_address }}">#}
+{#                        <label for="state">استان*</label>#}
+{#                        <input class="form-control" id="state" name="state" type="text" value="{{ form.state }}">#}
+{#                        <label for="county">شهرستان*</label>#}
+{#                        <input class="form-control" id="county" name="county" type="text" value="{{ address.county }}">#}
+{#                        <label for="village">روستا</label>#}
+{#                        <input class="form-control" id="village" name="village" type="text"#}
+{#                               value="{{ address.village }}">#}
+{#                        <label for="floor">طبقه*</label>#}
+{#                        <input class="form-control" id="floor" name="floor" type="text" value="{{ address.floor }}">#}
+{#                        <label for="House_number">پلاک*</label>#}
+{#                        <input class="form-control" id="House_number" name="House_number" type="text"#}
+{#                               value="{{ address.House_number }}">#}
+{#                        <label for="unit">واحد</label>#}
+{#                        <input class="form-control" id="unit" name="unit" type="text" value="{{ address.unit }}">#}
+{##}
+{#                                                <label for="postal_code">کد پستی*</label><input class="form-control" id="postal_code" name="postal_code" type="text"#}
+{#                                                             value="{{ address.postal_code }}">#}
+{#                        <button class="btn btn-dark" type="submit">ثبت آدرس</button>#}
+{#                    </form>#}
+{#                    <form method="post" novalidate action="{% url 'Accounts:editAddress' %}" id="addressForm">#}
+{#                        {% csrf_token %}#}
+{#                        {{ form }}#}
+{#                        <input type="hidden" name="address_id" value="{{ address.id }}">#}
+{#                        {{ form.as_p }}#}
+{#                     >#}
+{#                        <button type="submit" class="btn btn-primary">ذخیره</button>#}
+{#                    </form>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+
+
+{#function changeQuantityFunc(c_id, url) {#}
+{#    $.ajax({#}
+{#        url: url,#}
+{#        type: 'get',#}
+{#        data: {#}
+{#            'c_id': c_id,#}
+{#        },#}
+{#        success: function (response) {#}
+{#            if (response.success) {#}
+{#                $('.cart-len').text(response.cart_length);#}
+{#                $('#total-price').text(response.cart_data.total_price);#}
+{#                $('#profit').text(response.cart_data.profit);#}
+{#                $("#quantity-" + c_id).text(response.cart_data.products.find(item => item.id === c_id).quantity);#}
+{#                var quantity = response.cart_data.products.find(item => item.id === parseInt(c_id)).quantity;#}
+{#                $("#quantity").text(quantity);#}
+{#                console.log(quantity);#}
+{#                if (quantity === 1) {#}
+{#                    $("#product-" + c_id).remove();#}
+{#                } else {#}
+{#                    $("#remove-icon-" + c_id).hide();#}
+{#                    $("#minus-icon-" + c_id).show();#}
+{#                }#}
+{#            } else {#}
+{#                console.log('خطایی رخ داده است: ' + response.error);#}
+{#            }#}
+{#        },#}
+{#        error:#}
+{#            function (xhr, status, error) {#}
+{#                console.error('خطایی رخ داده است: ' + error);#}
+{#            }#}
+{#      });#}
+{#    }#}

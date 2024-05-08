@@ -1,0 +1,215 @@
+{% extends '_base.html' %}
+{% load humanize %}
+{% block title %}
+    نهایی کردن سبد خرید
+{% endblock %}
+
+<style>
+    .edit {
+        border: none;
+        outline: none;
+    }
+</style>
+{% block content %}
+    <div class="container-fluid">
+        {#        <div class="row">#}
+        <div class="row mb-4">
+            <p class="card py-4 fw-bold fs-4" style="width: 94rem;">ثبت سفارش و آدرس گیرنده</p>
+        </div>
+        <div class="row d-flex">
+            <div class="" style="width: 20%;">
+                <div class="ui vertical menu">
+                    <a class=" item">
+                        <p> مجموع سبد خرید {{ cart.get_total_price|add:var_cart.get_total_price | intcomma }} تومان
+                        </p>
+                        <p>سود شما از خرید {{ cart.get_total_profit |add:var_cart.get_total_profit| intcomma }}</p>
+                    </a>
+                    <a class=" item text-light" style="background-color: #7e0b0b;text-align: center">
+                        <form method="post" action="{% url 'order:send' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="text-light"
+                                    style="border: 0;outline: 0;background-color: #7e0b0b"> نهایی کردن سبد خرید
+                            </button>
+                        </form>
+                    </a>
+                </div>
+            </div>
+            <div class="d-flex flex-column justify-content-between" id="information"
+                 style="width: 80%">
+                <div class="card px-3 d-flex flex-row align-items-end justify-content-between">
+                    <div class="my-3">
+                        <small class="fw-bold fs-5">اطلاعات گیرنده</small>
+                        <div class="d-flex align-items-center mt-4">
+                            <span class="me-2 fs-5"><i class="fa-solid fa-location-dot"></i></span>
+                            <span class="">
+     {% if information_receiver.address_id %}
+         {% for add_user in all_address %}
+             {% if add_user.id == information_receiver.address_id %}
+                 {{ add_user.formatted_address }}
+             {% endif %}
+         {% endfor %}
+     {% else %}
+         {{ address.formatted_address }}
+     {% endif %}
+
+                                    </span>
+                        </div>
+                        <div class="d-flex align-items-center mt-2 ">
+                            <span class="me-2 fs-5"><i class="fa-solid fa-envelope"></i></span>
+                            {% if information_receiver.postal_code %}
+                                <span>
+                                {{ information_receiver.postal_code }}
+                                </span>
+                            {% else %}
+                                {{ address.postal_code }}
+                            {% endif %}
+
+
+                        </div>
+                        <div class="d-flex align-items-center mt-2">
+                            <span class="me-2 fs-5"><i class="fa-solid fa-user"></i></span>
+                            <span class=" text-secendry">{% if information_receiver.f_name and information_receiver.l_name %}
+                                {{ information_receiver.f_name }} {{ information_receiver.l_name }}{% else %}
+                                {{ request.user.full_name }}{% endif %}</span>
+                        </div>
+                        <div class="d-flex align-items-center mt-2">
+                            <span class="me-2 fs-5"><i class="fa-solid fa-mobile"></i></span>
+                            <span class=" text-secendry">{% if information_receiver.phone_number %}
+                                {{ information_receiver.phone_number }}{% else %}
+                                {{ request.user.phone_number }}{% endif %}</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center flex-row gap-2 justify-content-center mb-3">
+                            <span class="mb-1"><button data-bs-toggle="modal" data-bs-target="#exampleModal"
+                                                       style="border: none;outline: none;background: white"
+                            >ویرایش اطلاعات گیرنده</button></span>
+                        {#           class="edit"               onclick="show()"#}
+                        <span><i class="fa-solid fa-angle-left"></i></span>
+                    </div>
+                </div>
+                <div id="products" class="card py-2 my-3  px-3" style="width: 100%">
+                    <p>  {{ cart_len }} کالا </p>
+                    <div class="flex-row d-flex  gap-4 mt-4">
+                        {% for c in cart %}
+                            <div class="">
+                                <img src="{{ c.image }}" alt="" width="120px">
+                                <p>{{ c.name }}</p>
+                            </div>
+                        {% endfor %}
+                        {% for v in var_cart %}
+                            <div class="">
+{#                                <a href="{% url 'Products:ProductDetails' v.id v.slug %}">#}
+                                    <img src="{{ v.image }}" alt="" width="120px">
+{#                                </a>#}
+                                <p>{{ v.name }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">ثبت اطلاعات گیرنده</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="" style="" id="form_show">
+                            <div>
+
+                                <div class="form-check mb-4">
+
+                                    {#                                <input class="form-check-input" type="radio" name="address" id="flexRadioDefault1"#}
+                                    {#                            <input type="text" name="address" value="">#}
+                                    <form method="post" action="" novalidate>
+                                        <p class="fw-bold fs-5">آدرس ها </p>
+
+                                        {% csrf_token %}
+                                        {% for add_user in all_address %}
+                                            <div>
+                                                <input {% if address.id == add_user.id %} checked {% endif %}
+                                                                                          type="radio"
+                                                                                          id="address_{{ add_user.id }}"
+                                                                                          name="selected_address_id"
+                                                                                          value="{{ add_user.id }}">
+                                                <label for="address_{{ add_user.id }}">{{ add_user.formatted_address }}</label>
+                                            </div>
+                                        {% endfor %}
+                                        <div class="d-flex align-items-start flex-column mt-3">
+                                            <p class="fw-bold fs-5">اطلاعات گیرنده</p>
+                                            <div class="col-12  ">
+                                                {{ receiver_form }}
+                                                <input type="submit" id="edit_button" value="ثبت اطلاعات گیرنده"
+                                                       class="ui button mt-4" style="font-family: Vazir">
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(document).ready(function () {
+            $('input[name="selected_address_id"]').change(function () {
+                var selectedAddressId = $(this).val();
+                $.ajax({
+                    url: '',
+                    type: 'post',
+                    headers: {'X-CSRFToken': "{{ csrf_token }}"},
+                    data: {
+                        selected_address_id: selectedAddressId
+                    },
+                    success: function (response) {
+                        // Reload the page
+                        {#location.reload();#}
+                    },
+                    error: function (error) {
+                        console.error(error);
+                        console.log('error');
+                    }
+                });
+            });
+        });
+
+        $('#edit_address_button').click(function () {
+            // Trigger the change event on the select element to send the selected address ID to the view
+            $('#address_select').trigger('change');
+        });
+
+        form_show = document.getElementById("form_show")
+        information = document.getElementById("information")
+        products = document.getElementById("products")
+
+        function show() {
+            if (form_show.style.display === 'none') {
+                form_show.style.display = 'flex'
+                form_show.style.width = '25%'
+                information.style.width = '50%'
+                information.style.height = '60%'
+                products.style.width = "50%"
+            } else {
+                form_show.style.display = 'none'
+                information.style.width = '80%'
+                products.style.width = "100%"
+
+
+            }
+
+        }
+    </script>
+{% endblock %}
+
+
+

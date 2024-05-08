@@ -1,0 +1,20 @@
+
+.owl-carousel .owl-item img {
+    width: 150px;
+}
+
+#map {
+    height: 500px;
+}
+
+.leaflet-div-icon {
+    border: 0;
+    background-color: transparent;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+    transition: all 0.3s ease-in-out;
+}
+

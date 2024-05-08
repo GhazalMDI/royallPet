@@ -1,0 +1,30 @@
+{% extends '_base.html' %}
+{% load humanize %}
+{% block title %}
+    سبد خرید
+{% endblock %}
+
+{% block content %}
+    {% for c in cart %}
+        <div class=" col-12 border-bottom gap-3 py-2 mb-5 flex-row d-flex align-items-start justify-content-between product_data">
+        <div class="d-flex  flex-column align-items-center">
+        <img src="{{ c.image }}" width="120px" alt="">
+        <div class="d-flex align-items-center mt-2 flex-row gap-2 btn-cart border border border-secondary rounded p-2 mb-2 border-opacity-50">
+            {% if c.quantity < 2 %}
+                <a class="changeQuantity"
+                   href="{% url 'cart:CartOneDelete' c.id %}"><i
+                        class="fa-solid fa-trash  text-danger"></i></a>
+            {% else %}
+                <a class="changeQuantity"
+                   href="{% url 'cart:CartOneDelete' c.id %}">
+                    <i class="fa-solid fa-minus text-danger"></i></a>
+            {% endif %}
+            <span style="" type="text" value="">{{ c.quantity }}</span>
+            <a href="{% url 'cart:CartOneAdd' c.id %}">
+                <i class="fa-solid fa-plus text-danger"></i>
+            </a>
+        </div>
+        <p>  {{ c.total | intcomma }} تومان </p>
+    {% endfor %}
+{% endblock %}
+

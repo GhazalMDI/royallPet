@@ -1,0 +1,48 @@
+{% extends '_base.html' %}
+{% block title %}
+    ویرایش آدرس
+{% endblock %}
+{% block css %}
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row mb-4">
+            <p class="card py-4 fw-bold fs-4" style="width: 94rem;">ویرایش آدرس</p>
+        </div>
+        <div class="row-reverse d-flex align-items-top justify-content-around gap-2">
+            <div class="col-5">
+            <div class="row">
+                <p class="fw-bold fs-5">آدرس های شما</p>
+            </div>
+                <div class="ui middle aligned divided list">
+                    {% for address in Address_user %}
+                        <div class="item">
+                            <div class="right floated content">
+{#                                 <div class="ui button btn-danger">#}
+{#                                    <a class="pb-5" href="{% url 'Accounts:DeleteAddress' address.id %}?del={{ address.id }}">حذف</a>#}
+{#                                </div>#}
+                                <div class="ui button">
+                                    <a href="{% url 'Accounts:editAddress' address.id %}">ویرایش</a>
+                                </div>
+                            </div>
+                            {#                            <img class="ui avatar image" src="/images/avatar2/small/lena.png">#}
+                            <div class="content">
+                                {{ address.formatted_address }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-4">
+                <form method="post" novalidate action>
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="ui button" style="font-family: Vazir">ویرایش</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends '_base.html' %}
+{% block css %}{% endblock %}
+{% block title %}
+    ورود به سایت
+{% endblock %}
+
+{% block content %}
+    <div class="container d-flex align-items-center justify-content-center">
+
+        {#            <div class="row">#}
+        <div class="mt-5 py-2 border col-5">
+            {#            <p>ورود به حساب کاربری</p>#}
+
+            <form novalidate method="post" action="" class=" flex-column d-flex
+                align-items-center justify-content-center">
+                {% csrf_token %}
+                <div class="col-6">
+                    {{ form }}
+
+
+{#                    <label for="id_captcha">کد امنیتی</label><br>#}
+{#                    <img src="{{ captcha_image_url }}" alt="captcha"><br>#}
+{#                    {{ form.captcha }}#}
+                </div>
+                <div class="d-flex flex-column align-items-start justify-content-center mt-4">
+                    <small>اگر حساب کاربری ندارید برای <a href="{% url 'Accounts:Register' %}">ایجاد</a> در اینجا
+                        کلیک کنید.</small>
+                    <a href="{% url 'Accounts:Forget' %}">فراموشی رمز عبور</a>
+                </div>
+                <input type="submit" value="ورود" class="btn btn-dark mt-3">
+
+            </form>
+        </div>
+        {#        </div>#}
+    </div>
+{% endblock %}
+
+
+
+
+{% block js %}
+{% endblock %}
