@@ -9,3 +9,14 @@ Products visited by the user.
 Favorite products
 Compare products with each other according to categories.
 Order registration and discount coupon as well as shipping cost calculation.
+
+
+#run project:
+
+pip install virtualenv
+
+venv\Scripts\activate
+
+pip install -r requirements.txt
+
+python manage.py runserver
